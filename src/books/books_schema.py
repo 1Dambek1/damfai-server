@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import datetime
 
 class ShowGanres(BaseModel):
+    id:int
     ganre:str 
 
 class ShowRating(BaseModel):
@@ -51,6 +52,7 @@ class CreateBook(BaseModel):
     author:str
     desc:Optional[str] = None
     writen_date:Optional[datetime.date] = None
+    janres: list[int] |  None
 
 class ShowBook(BaseModel):
     
@@ -61,7 +63,7 @@ class ShowBook(BaseModel):
     writen_date:Optional[datetime.date] = None
     chapters:list[ShowChapter] | int |  None
     ratings:list[ShowRating] | float |  None
-    ganres: list[ShowGanres] |  None
+    ganres: list[str] |  None
 
 
 

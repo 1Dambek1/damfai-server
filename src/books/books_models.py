@@ -34,7 +34,6 @@ class Book(Base):
     title:Mapped[str]
     author:Mapped[str]
     desc:Mapped[str]
-
     writen_date:Mapped[datetime.date] = mapped_column(nullable=True)
 
     chapters:Mapped[list["Chapter"]] = relationship(back_populates="book", uselist=True)
@@ -72,8 +71,10 @@ class PageModel(Base):
 
 class Ganre(Base):  
     __tablename__ = "ganre_table"
+
+    id:Mapped[int] = mapped_column(primary_key=True)
     
-    ganre:Mapped[str] = mapped_column(primary_key=True)
+    ganre:Mapped[str] 
 
     books:Mapped[list["Book"]] = relationship(back_populates="ganres", uselist=True, secondary="ganre_book_table")
 
@@ -82,5 +83,5 @@ class GanreBook(Base):
     __tablename__ = "ganre_book_table"
     
     
-    ganre_id:Mapped[int] = mapped_column(ForeignKey("ganre_table.ganre"), primary_key=True)
+    ganre_id:Mapped[int] = mapped_column(ForeignKey("ganre_table.id"), primary_key=True)
     book_id:Mapped[int] = mapped_column(ForeignKey("book_table.id"), primary_key=True)

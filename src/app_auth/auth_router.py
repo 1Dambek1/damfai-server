@@ -63,7 +63,7 @@ async def register_user(data:RegisterUser ,session:AsyncSession = Depends(get_se
     
 
 
-@app.put("/update")
+@app.put("/update", response_model=ShowUser)
 async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
     
     await session.refresh(me)
@@ -75,7 +75,7 @@ async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,sessi
     return me
 
 
-@app.put("/update_password")
+@app.put("/update_password", response_model=ShowUser)
 async def update_user(password:str,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
     
     await session.refresh(me)
