@@ -27,13 +27,10 @@ from .books_models import Book, Chapter, PageModel, Rating, Ganre,GanreBook
 from .books_filter import BookFilter
 app = APIRouter(prefix="/books", tags=["books"])
 
-@app.get("")
-async def bo(session:AsyncSession = Depends(get_session)):
-    books = await session.scalars(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
-    return books.all()
 
+# ---------------------work with book---------------------
 @app.post("")
-async def get_books(ganres:list[int],me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
+async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
     query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
     result = await session.execute(query1)
     result = result.scalars().all()
@@ -41,32 +38,52 @@ async def get_books(ganres:list[int],me = Depends(get_current_user),user_filter:
     
     for i in result:
             i:Book
-            if ganres == [] or ganres in [i2.id for i2 in i.ganres]:
-                    data = {
-                        "id":i.id,
-                        "title":i.title,
-                        "file_path":i.file_path,
-                        "author":i.author,
-                        "desc":i.desc,
-                        "writen_date":i.writen_date,
-                        "chapters":len(i.chapters),
-                        "ganres":[i.ganre for i in i.ganres],
-                        "age_of_book": i.age_of_book
-                        }
-                    counts = 0 
-                    if len(i.ratings)>0:
-                        for i2 in i.ratings: 
-                            counts += i2.rating
-                    
-                        data["ratings"] = counts/len(i.ratings)
-                    else:
-                        data["ratings"] = 0
+            is_good = True  
+            mine_ganres = [i2.id for i2 in i.ganres]                     
+            for i2 in ganres:
+                if not i2 in mine_ganres:
+                       is_good = False
+            if is_good:
+                data = {
+                            "id":i.id,
+                            "title":i.title,
+                            "file_path":i.file_path,
+                            "author":i.author,
+                            "desc":i.desc,
+                            "writen_date":i.writen_date,
+                            "chapters":len(i.chapters),
+                            "ganres":[i.ganre for i in i.ganres],
+                            "age_of_book": i.age_of_book
+                            }
+                # rating
+                sum_rating = 0 
+
+                if len(i.ratings)>0:
+
+                    for i2 in i.ratings: 
+                        sum_rating += i2.rating
+
+                    rate = sum_rating/len(i.ratings)
+                    data["ratings"] = rate
+                else:
+                    rate = 0
+                    data["ratings"] = rate
+
+                if rating__lte and rating__gte:
+                    if rate >= rating__gte and rate <= rating__lte:
+                        datas.append(data)
+
+                elif rating__lte:
+                    if rate <= rating__lte:
+                        datas.append(data)
+
+                elif rating__gte:
+                    if rate >= rating__gte:
+                        datas.append(data)
+                else:
                     datas.append(data)
         
     return paginate(datas)
-
-
-
 
 @app.get("/chapters/{id_book}", response_model=list[ShowChapter])
 async def get_books_with_chapters(id_book:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
@@ -85,7 +102,6 @@ async def get_books_with_chapters(id_book:int,me = Depends(get_current_user),ses
             datas.append(data)
     return datas
 
-
 @app.get("/get_pages_by_chapter/{id_chapter}")
 async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)) -> Page[ShowPage] :
     query1 = (select(PageModel).where(PageModel.chapter_id == id_chapter))
@@ -93,10 +109,12 @@ async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),ses
     return paginate(result.scalars().all())
 
 
+#  ---------------------work with recomendations---------------------
 
 
 
-#  Rating
+#  ---------------------work with rating---------------------
+
 
 @app.post("/book/rating")
 async def create_rating(rating:CreateRating,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
@@ -113,20 +131,14 @@ async def create_rating(rating:CreateRating,me = Depends(get_current_user),sessi
     return rating
 
 
-
-
-
-
+#  ---------------------work with ganres---------------------
 
 @app.get("/ganres/all", response_model = list[ShowGanres])
 async def ganres(me = Depends(get_current_user), session:AsyncSession = Depends(get_session)):
     ganres = await session.scalars(select(Ganre))
     return ganres.all()
 
-
-
-
-
+#  ---------------------work with create(DEBUG)---------------------
 
 @app.post("/ganres/create")
 async def create_ganre(ganre:str,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
@@ -149,6 +161,7 @@ async def create_book(book_data:CreateBook,me = Depends(get_current_user),sessio
     await session.commit()
     await session.refresh(book)
     return book
+
 
 
 add_pagination(app)  
