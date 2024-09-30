@@ -162,8 +162,26 @@ async def create_book(book_data:CreateBook,me = Depends(get_current_user),sessio
     await session.refresh(book)
     return book
 
+@app.post("/chapter/create")
+async def create_chapter(chapter_data:list[CreateChapter],me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    chapters = []
+    for i in chapter_data:
+        chapter = Chapter(title = i.title, numberOfChapter = i.numberOfChapter, book_id = i.book_id)
+        chapters.append(chapter)
+        session.add(chapter)
+    await session.commit()
+    await session.refresh(chapters)
+    return True
 
-
+@app.post("/pages/create")
+async def update_pages(pages_data:list[CreatePage],me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    pages = []
+    for i in pages_data:
+        page = PageModel(numberOfPage = i.numberOfPage, text = i.text, chapter_id = i.chapter_id)
+        pages.append(page)
+        session.add(page)
+    await session.commit()
+    return True
 add_pagination(app)  
 
 
