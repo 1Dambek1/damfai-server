@@ -11,6 +11,8 @@ class AuthData(BaseModel):
     public_key :Path = BASE_DIR  /  "src" / "app_auth"  / "tokens" / "public_key.pem"
     
     algorithm:str = "RS256"
+
+    
     days:int = 7
     
 
