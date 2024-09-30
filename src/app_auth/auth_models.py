@@ -1,0 +1,31 @@
+from ..db import Base
+
+
+import datetime
+from typing import Annotated
+import uuid
+import typing
+
+from sqlalchemy import  text, ForeignKey
+from sqlalchemy.orm import  Mapped, mapped_column, relationship
+
+
+
+
+created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('Europe/Moscow', now())"))]
+
+
+class User(Base):
+    
+    __tablename__ = "user_table"
+
+    id:Mapped[int] = mapped_column(primary_key=True)    
+
+    password:Mapped[bytes]
+    email:Mapped[str] = mapped_column(unique=True)
+        
+    dob:Mapped[datetime.date]
+    
+    created_at:Mapped[created_at]
+    
+    
