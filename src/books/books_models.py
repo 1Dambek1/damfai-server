@@ -1,0 +1,86 @@
+import datetime
+from typing import Annotated, TYPE_CHECKING
+import uuid
+from sqlalchemy.orm  import Mapped, mapped_column, relationship, DeclarativeBase
+from sqlalchemy import ForeignKey
+
+from ..db import Base
+if TYPE_CHECKING:
+    from ..app_auth.auth_models import User
+
+
+class Rating(Base):
+    __tablename__ = "rating_table"
+    
+    id:Mapped[int] = mapped_column(primary_key=True)
+
+    rating:Mapped[int] = mapped_column(nullable=False)
+    
+    book_id:Mapped[int] = mapped_column(ForeignKey("book_table.id"))
+    book:Mapped["Book"] = relationship(uselist=False, back_populates="ratings")
+
+    user_id:Mapped[uuid.UUID] = mapped_column(ForeignKey("user_table.id", ondelete="CASCADE"))
+    user:Mapped["User"] = relationship(uselist=False)
+
+
+class Book(Base):
+    
+    __tablename__ = "book_table"
+    
+    id:Mapped[int] = mapped_column(primary_key=True)
+
+    file_path:Mapped[str] = mapped_column(nullable=True)
+
+    title:Mapped[str]
+    author:Mapped[str]
+    desc:Mapped[str]
+
+    writen_date:Mapped[datetime.date] = mapped_column(nullable=True)
+
+    chapters:Mapped[list["Chapter"]] = relationship(back_populates="book", uselist=True)
+
+    janres:Mapped[list["Janre"]] = relationship(back_populates="books", uselist=True, secondary="janre_book_table")
+
+    ratings:Mapped[list["Rating"]] = relationship(back_populates="book", uselist=True)
+
+class Chapter(Base):
+    
+    __tablename__ = "chapter_table"
+    
+    id:Mapped[int] = mapped_column(primary_key=True)
+
+    title:Mapped[str] = mapped_column(nullable=True)
+    numberOfChapter:Mapped[int] = mapped_column()
+
+    book_id:Mapped[int] = mapped_column(ForeignKey("book_table.id"))
+    book:Mapped["Book"] = relationship(uselist=False, back_populates="chapters")
+
+    pages:Mapped[list["PageModel"]] = relationship(back_populates="chapter", uselist=True)
+
+class PageModel(Base):
+    
+    __tablename__ = "page_table"
+    
+    id:Mapped[int] = mapped_column(primary_key=True)
+    
+    numberOfPage:Mapped[float] = mapped_column()
+    text:Mapped[str]
+
+    chapter_id:Mapped[int] = mapped_column(ForeignKey("chapter_table.id"))
+    chapter:Mapped["Chapter"] = relationship(uselist=False, back_populates="pages")
+
+
+class Janre(Base):  
+    __tablename__ = "janre_table"
+    
+    janre:Mapped[str] = mapped_column(primary_key=True)
+
+    books:Mapped[list["Book"]] = relationship(back_populates="janres", uselist=True, secondary="janre_book_table")
+
+
+class JanreBook(Base):  
+    __tablename__ = "janre_book_table"
+    
+    
+    janre_id:Mapped[int] = mapped_column(ForeignKey("janre_table.janre"), primary_key=True)
+    book_id:Mapped[int] = mapped_column(ForeignKey("book_table.id"), primary_key=True)
