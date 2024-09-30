@@ -28,13 +28,13 @@ app = APIRouter(prefix="/books", tags=["books"])
 
 
 @app.get("")
-async def get_books(janres:list[str] = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
-    query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.janres)))
+async def get_books(ganres:list[str] = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
+    query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
     result = await session.execute(query1)
     result = result.scalars().all()
     datas = []
     for i in result:
-        data = {
+        data: Book = {
             "id":i.id,
             "title":i.title,
             "file_path":i.file_path,
@@ -42,8 +42,9 @@ async def get_books(janres:list[str] = None,me = Depends(get_current_user),user_
             "desc":i.desc,
             "writen_date":i.writen_date,
             "chapters":len(i.chapters),
-            "janres":i.janres
+            "ganres":i.ganres
         }
+        
         counts = 0
         if len(i.ratings)>0:
             for i2 in i.ratings: 
