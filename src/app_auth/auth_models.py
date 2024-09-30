@@ -23,6 +23,9 @@ class User(Base):
 
     password:Mapped[bytes]
     email:Mapped[str] = mapped_column(unique=True)
+
+    name:Mapped[str]
+    surname:Mapped[str]
         
     dob:Mapped[datetime.date]
     

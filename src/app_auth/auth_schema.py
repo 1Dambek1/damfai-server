@@ -10,18 +10,15 @@ class LoginUser(BaseModel):
     password: str
     
 class RegisterUser(BaseModel):
-    
-
-    
-    
-    # ______data_______________________
-    
+        
     email: EmailStr
     
-    password: str | bytes
-    
+    name:str
+    surname:str
     
     dob:datetime.date
+
+    password: str | bytes
     
     @field_validator("password")
     def check_password(cls, v):
@@ -33,12 +30,12 @@ class ShowUser(BaseModel):
     
     id:int
     
-
-    created_at:datetime.datetime
-    # ______data_______________________
-    
+    name:str
+    surname:str
     email: EmailStr
-        
+    
+    created_at:datetime.datetime
+
     dob:datetime.date
 
 
@@ -47,24 +44,24 @@ class ShowUserWithToken(BaseModel):
     
     id:int
 
-    # ______data_______________________
-    
     email: EmailStr
-    token:str
+    name:str
+    surname:str
         
     dob:datetime.date
+
+    token:str
+
 
 
 
 class UpdateUser(BaseModel):
-    
 
-    
-    
-    # ______data_______________________
-    
+    name:str
+    surname:str
+
     email: EmailStr    
-    
+
     dob:datetime.date
     
     

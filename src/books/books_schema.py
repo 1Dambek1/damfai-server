@@ -52,7 +52,8 @@ class CreateBook(BaseModel):
     author:str
     desc:Optional[str] = None
     writen_date:Optional[datetime.date] = None
-    janres: list[int] |  None
+    ganres: list[int]
+    age_of_book:int
 
 class ShowBook(BaseModel):
     
@@ -61,9 +62,11 @@ class ShowBook(BaseModel):
     author:str
     desc:Optional[str] = None
     writen_date:Optional[datetime.date] = None
+    age_of_book:Optional[int] | None
+
     chapters:list[ShowChapter] | int |  None
     ratings:list[ShowRating] | float |  None
-    ganres: list[str] |  None
+    ganres: list[str] |  None | list[ShowGanres]
 
 
 

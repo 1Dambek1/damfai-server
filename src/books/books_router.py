@@ -33,35 +33,35 @@ async def bo(session:AsyncSession = Depends(get_session)):
     return books.all()
 
 @app.post("")
-async def get_books(ganres:list[int] = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
+async def get_books(ganres:list[int],me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
     query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
     result = await session.execute(query1)
     result = result.scalars().all()
     datas = []
-
+    
     for i in result:
-        new_ganres = [i.ganre for i in i.ganres]
-
-        if ganres in new_ganres:   
-            data = {
-                "id":i.id,
-                "title":i.title,
-                "file_path":i.file_path,
-                "author":i.author,
-                "desc":i.desc,
-                "writen_date":i.writen_date,
-                "chapters":len(i.chapters),
-                "ganres":new_ganres
-                }
-            counts = 0 
-            if len(i.ratings)>0:
-                for i2 in i.ratings: 
-                    counts += i2.rating
-            
-                data["ratings"] = counts/len(i.ratings)
-            else:
-                data["ratings"] = 0
-            datas.append(data)
+            i:Book
+            if ganres == [] or ganres in [i2.id for i2 in i.ganres]:
+                    data = {
+                        "id":i.id,
+                        "title":i.title,
+                        "file_path":i.file_path,
+                        "author":i.author,
+                        "desc":i.desc,
+                        "writen_date":i.writen_date,
+                        "chapters":len(i.chapters),
+                        "ganres":[i.ganre for i in i.ganres],
+                        "age_of_book": i.age_of_book
+                        }
+                    counts = 0 
+                    if len(i.ratings)>0:
+                        for i2 in i.ratings: 
+                            counts += i2.rating
+                    
+                        data["ratings"] = counts/len(i.ratings)
+                    else:
+                        data["ratings"] = 0
+                    datas.append(data)
         
     return paginate(datas)
 
@@ -137,18 +137,15 @@ async def create_ganre(ganre:str,me = Depends(get_current_user),session:AsyncSes
     return ganre_m
 
 @app.post("/create")
-async def create_book(book:CreateBook,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def create_book(book_data:CreateBook,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     
-    book = Book(title = book.title, author = book.author, desc = book.desc, writen_date = book.writen_date)
-    for i in book.ganres:
+    book:Book= Book(title = book_data.title, author = book_data.author, desc = book_data.desc, writen_date = book_data.writen_date, age_of_book = book_data.age_of_book)
+    for i in book_data.ganres:
         ganre = await session.scalar(select(Ganre).where(Ganre.id == i))
         if ganre:
             book.ganres.append(ganre)
-        
     session.add(book)
     
-
-            # await session.flush()
     await session.commit()
     await session.refresh(book)
     return book
@@ -158,39 +155,3 @@ add_pagination(app)
 
 
 
-# @app.get("/students") 
-# async def get_students(me = Depends(get_current_active_user),user_filter: Optional[StudentFilter] = FilterDepends(StudentFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowUser]:
-#     query = user_filter.filter(select(User).where(User.role == Role.student))   # 
-#     result = await session.execute(query)
-#     return paginate(result.scalars().all())
-
-
-
-
-# @app.get("/booksp")
-# async def get_books_paginate(me = Depends(get_current_user),session:AsyncSession = Depends(get_session))-> Page[ShowBook]:
-#     result = await session.execute(select(Book).options(Book.chapters))
-
-#     return paginate(result.scalars().all())
-
-
-
-# @app.get("/booksf")
-# async def get_books_filter(me = Depends(get_current_user),
-#                     user_filter: Optional[BookFilter] = FilterDepends(BookFilter),
-#                     session:AsyncSession = Depends(get_session)):
-    
-#     query = user_filter.filter(select(Book).options(Book.chapters)) 
-#     result = await session.execute(query)
-
-#     return result.scalars().all()
-
-
-
-# @app.get("/bookss")
-# async def g(me = Depends(get_current_user),
-#                     session:AsyncSession = Depends(get_session)):
-    
-#     result = await session.execute(select(Book).options(Book.chapters))
-
-#     return result.scalars().all()

@@ -35,6 +35,7 @@ class Book(Base):
     author:Mapped[str]
     desc:Mapped[str]
     writen_date:Mapped[datetime.date] = mapped_column(nullable=True)
+    age_of_book:Mapped[int] = mapped_column(nullable=True)
 
     chapters:Mapped[list["Chapter"]] = relationship(back_populates="book", uselist=True)
 
