@@ -51,5 +51,15 @@ class ShowUserWithToken(BaseModel):
 
 
 
+class UpdateUser(BaseModel):
+    
+
+    
+    
+    # ______data_______________________
+    
+    email: EmailStr    
+    
+    dob:datetime.date
     
     

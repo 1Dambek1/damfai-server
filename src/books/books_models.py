@@ -39,7 +39,7 @@ class Book(Base):
 
     chapters:Mapped[list["Chapter"]] = relationship(back_populates="book", uselist=True)
 
-    janres:Mapped[list["Janre"]] = relationship(back_populates="books", uselist=True, secondary="janre_book_table")
+    ganres:Mapped[list["Ganre"]] = relationship(back_populates="books", uselist=True, secondary="ganre_book_table")
 
     ratings:Mapped[list["Rating"]] = relationship(back_populates="book", uselist=True)
 
@@ -70,17 +70,17 @@ class PageModel(Base):
     chapter:Mapped["Chapter"] = relationship(uselist=False, back_populates="pages")
 
 
-class Janre(Base):  
-    __tablename__ = "janre_table"
+class Ganre(Base):  
+    __tablename__ = "ganre_table"
     
-    janre:Mapped[str] = mapped_column(primary_key=True)
+    ganre:Mapped[str] = mapped_column(primary_key=True)
 
-    books:Mapped[list["Book"]] = relationship(back_populates="janres", uselist=True, secondary="janre_book_table")
+    books:Mapped[list["Book"]] = relationship(back_populates="ganres", uselist=True, secondary="ganre_book_table")
 
 
-class JanreBook(Base):  
-    __tablename__ = "janre_book_table"
+class GanreBook(Base):  
+    __tablename__ = "ganre_book_table"
     
     
-    janre_id:Mapped[int] = mapped_column(ForeignKey("janre_table.janre"), primary_key=True)
+    ganre_id:Mapped[int] = mapped_column(ForeignKey("ganre_table.ganre"), primary_key=True)
     book_id:Mapped[int] = mapped_column(ForeignKey("book_table.id"), primary_key=True)

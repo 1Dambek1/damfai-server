@@ -2,8 +2,8 @@ from typing import Optional
 from pydantic import BaseModel
 import datetime
 
-class ShowJanres(BaseModel):
-    janre:str 
+class ShowGanres(BaseModel):
+    ganre:str 
 
 class ShowRating(BaseModel):
     
@@ -61,7 +61,7 @@ class ShowBook(BaseModel):
     writen_date:Optional[datetime.date] = None
     chapters:list[ShowChapter] | int |  None
     ratings:list[ShowRating] | float |  None
-    janres: list[ShowJanres] |  None
+    ganres: list[ShowGanres] |  None
 
 
 

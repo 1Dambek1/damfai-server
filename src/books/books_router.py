@@ -8,6 +8,7 @@ from fastapi.logger import logger
 
 from fastapi_pagination import  add_pagination,Page,paginate
 from fastapi_pagination.utils import disable_installed_extensions_check
+
 disable_installed_extensions_check()
 
 from fastapi_filter import FilterDepends
@@ -20,16 +21,16 @@ from sqlalchemy.dialects import postgresql
 from ..get_current_me import get_current_user
 from ..db import get_session
 
-from .books_schema import CreateBook, CreateRating, ShowBook, ShowChapter, CreateChapter, CreatePage, ShowPage
-from .books_models import Book, Chapter, PageModel, Rating
+from .books_schema import CreateBook, CreateRating, ShowBook, ShowChapter, CreateChapter, CreatePage, ShowPage, ShowGanres
+from .books_models import Book, Chapter, PageModel, Rating, Ganre
 from .books_filter import BookFilter
 app = APIRouter(prefix="/books", tags=["books"])
 
 
 
-@app.get("")
-async def get_books(janres:list[str] = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
-    query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.janres)))
+@app.post("")
+async def get_books(ganres:list[str] = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session)) -> Page[ShowBook]:
+    query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
     result = await session.execute(query1)
     result = result.scalars().all()
     datas = []
@@ -42,7 +43,7 @@ async def get_books(janres:list[str] = None,me = Depends(get_current_user),user_
             "desc":i.desc,
             "writen_date":i.writen_date,
             "chapters":len(i.chapters),
-            "janres":i.janres
+            "ganres":i.ganres
         }
         counts = 0
         if len(i.ratings)>0:
@@ -54,6 +55,10 @@ async def get_books(janres:list[str] = None,me = Depends(get_current_user),user_
             data["ratings"] = 0
         datas.append(data)
     return paginate(datas)
+
+
+
+
 
 @app.get("/with_chapters", response_model=list[ShowChapter])
 async def get_books_with_chapters(id_book:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
@@ -80,6 +85,12 @@ async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),ses
 
 
 
+
+
+
+
+#  Rating
+
 @app.post("/rating")
 async def create_rating(rating:CreateRating,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     rating = Rating(book_id = rating.book_id, rating=rating.rating, user_id=me.id)
@@ -89,6 +100,15 @@ async def create_rating(rating:CreateRating,me = Depends(get_current_user),sessi
     return rating
 
 
+
+
+
+
+
+@app.get("/ganres", response_model = list[ShowGanres])
+async def ganres(me = Depends(get_current_user), session:AsyncSession = Depends(get_session)):
+    ganres = await session.scalars(select(Ganre))
+    return ganres.all()
 
 
 
@@ -106,7 +126,6 @@ async def create_book(book:CreateBook,me = Depends(get_current_user),session:Asy
 
 
 add_pagination(app)  
-
 
 
 

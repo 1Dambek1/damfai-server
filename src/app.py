@@ -16,20 +16,20 @@ app.include_router(books_app)
 
 # DB(DEBUG)
 
-# async def create_db():
+async def create_db():
     
-#     async with engine.begin() as conn:
-#         try:
-#             await conn.run_sync(Base.metadata.drop_all)
-#         except:
-#             pass
-#         await  conn.run_sync(Base.metadata.create_all)
+    async with engine.begin() as conn:
+        try:
+            await conn.run_sync(Base.metadata.drop_all)
+        except:
+            pass
+        await  conn.run_sync(Base.metadata.create_all)
 
         
-# @app.get("/db")
-# async def create():
-#     await create_db()
-#     return True
+@app.get("/db")
+async def create():
+    await create_db()
+    return True
 
 # alembic
 # CORS

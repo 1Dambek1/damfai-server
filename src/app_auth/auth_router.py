@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from .auth_schema import RegisterUser, LoginUser, ShowUser
+from .auth_schema import RegisterUser, LoginUser, ShowUser, UpdateUser
 from .auth_utils.utils import decode_password, check_password, create_access_token
 
 
@@ -63,8 +63,24 @@ async def register_user(data:RegisterUser ,session:AsyncSession = Depends(get_se
     
 
 
+@app.put("/update")
+async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
+    
+    await session.refresh(me)
+    me.email = data.email
+    me.dob = data.dob
+    await session.commit()
+    await session.refresh(me)
+
+    return me
 
 
+@app.put("/update_password")
+async def update_user(password:str,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
+    
+    await session.refresh(me)
+    me.password = await decode_password(password=password)
+    await session.commit()
+    await session.refresh(me)
 
-
-
+    return me
