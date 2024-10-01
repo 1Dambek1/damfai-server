@@ -43,7 +43,7 @@ class ShowChapter(BaseModel):
     id:int
     title:Optional[str] = None
     numberOfChapter:int
-    pages:list[ShowPage] |int |  None 
+    pages: int | list[ShowPage]  |  None 
 
 
 
@@ -66,8 +66,8 @@ class ShowBook(BaseModel):
     writen_date:Optional[datetime.date] = None
     age_of_book:Optional[int] | None
 
-    chapters:list[ShowChapter] | int |  None
-    ratings:list[ShowRating] | float |  None
+    chapters:  int | list[ShowChapter] |  None
+    ratings: float | list[ShowRating]  |  None
     ganres: list[str] |  None | list[ShowGanres]
 
 
