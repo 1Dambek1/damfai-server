@@ -14,21 +14,24 @@ from sqlalchemy.orm import selectinload, joinedload, aliased
 
 app = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 
+#  ---------------------get bookmarks and favourite---------------------
 
-
+# get bookmarks
 @app.get("/")
 async def get_bookmarks(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     bookmarks = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.bookmarks_on_page)))
     return bookmarks
 
+# get favourite
 @app.get("/favourite")
 async def get_bookmarks(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     favourite = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books)))
     return favourite
 
 
-# Add to favourite and bookmarks
+#  ---------------------create bookmarks and favourite---------------------
 
+# create favourite
 @app.post("/favourite")
 async def favourite(book_id:int,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     user:User = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books)))
@@ -42,7 +45,7 @@ async def favourite(book_id:int,user_id = Depends(get_current_id),me = Depends(g
         raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
     raise HTTPException(detail={"detail":"user is not exist", "status_code":400}, status_code=400)
 
-
+#  create bookmarks
 @app.post("")
 async def favourite(page_id:int,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     user:User = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.bookmarks_on_page)))
@@ -63,9 +66,9 @@ async def favourite(page_id:int,user_id = Depends(get_current_id),me = Depends(g
 
 
 
-@app.get("/tests")
-async def test(session:AsyncSession = Depends(get_session)):
-    test1 = await session.scalars(select(FavouriteUser))
-    test2 = await session.scalars(select(BookmarkUser)) 
+# @app.get("/tests")
+# async def test(session:AsyncSession = Depends(get_session)):
+#     test1 = await session.scalars(select(FavouriteUser))
+#     test2 = await session.scalars(select(BookmarkUser)) 
 
-    return {"data1":test1.all(), "data2":test2.all()}
+#     return {"data1":test1.all(), "data2":test2.all()}

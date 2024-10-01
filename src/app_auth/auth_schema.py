@@ -42,7 +42,6 @@ class ShowUser(BaseModel):
 
 class ShowUserWithToken(BaseModel):
     
-    id:int
 
     email: EmailStr
     name:str

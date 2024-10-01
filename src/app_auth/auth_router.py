@@ -1,30 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-
 from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from .auth_schema import RegisterUser, LoginUser, ShowUser, ShowUserWithToken, UpdateUser
 from .auth_utils.utils import decode_password, check_password, create_access_token
-
 
 from ..db import get_session
 from .auth_models import User
 from ..get_current_me import get_current_user
 
 
-
 app = APIRouter(prefix="/auth", tags=["auth"])
 
-
+# get me
 @app.get("/me", response_model=ShowUser)
 async def me(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
      return me
 
-
+# login
 @app.post("/login")
 async def login_user(data:LoginUser,session:AsyncSession = Depends(get_session)):
 
@@ -40,8 +36,8 @@ async def login_user(data:LoginUser,session:AsyncSession = Depends(get_session))
                 "status":401
         })
         
-
-@app.post("/register")
+# register
+@app.post("/register", response_model=ShowUserWithToken)
 async def register_user(data:RegisterUser ,session:AsyncSession = Depends(get_session)):
     data_dict = data.model_dump()
     
@@ -61,8 +57,7 @@ async def register_user(data:RegisterUser ,session:AsyncSession = Depends(get_se
         
     return data_dict
     
-
-
+# update user
 @app.put("/update", response_model=ShowUser)
 async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
     
@@ -76,7 +71,7 @@ async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,sessi
 
     return me
 
-
+# update password user
 @app.put("/update_password", response_model=ShowUser)
 async def update_user(password:str,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
     

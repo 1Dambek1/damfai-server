@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db import Base, engine
@@ -9,7 +10,11 @@ from .profile.profile_router import app as profile_app
 
 app = FastAPI(title="damfai")
 
+if not os.path.exists("images"):
+    os.mkdir("images")
 
+if not os.path.exists("images/books_img"):
+    os.mkdir("images/books_img")
 # routers 
 
 app.include_router(auth_app)

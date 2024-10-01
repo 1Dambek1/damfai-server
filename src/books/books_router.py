@@ -1,7 +1,6 @@
 import shutil
 from typing import Optional
-
-import pandas as pd
+import os 
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -9,7 +8,6 @@ from fastapi.logger import logger
 
 from fastapi_pagination import  add_pagination,Page,paginate
 from fastapi_pagination.utils import disable_installed_extensions_check
-
 disable_installed_extensions_check()
 
 from fastapi_filter import FilterDepends
@@ -26,17 +24,24 @@ from ..db import get_session
 from .books_schema import CreateBook, CreateRating, ShowBook, ShowChapter, CreateChapter, CreatePage, ShowPage, ShowGanres
 from .books_models import Book, Chapter, PageModel, Rating, Ganre,GanreBook
 from .books_filter import BookFilter
+
+
 app = APIRouter(prefix="/books", tags=["books"])
 
 
 # ---------------------work with book---------------------
-@app.get("/img")
-async def main(id_book:str, session:AsyncSession = Depends(get_session)):
+
+# img for book
+@app.get("/img/{id_book}")
+async def main(id_book:int, session:AsyncSession = Depends(get_session)):
     book = await session.scalar(select(Book).where(Book.id == id_book))
     if book:
-        return FileResponse(f"{book.file_path}")
-    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
+        if book.file_path:
+            return FileResponse(f"images/books_img/{book.file_path}")
+    else:
+        raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
+# get filter books with pagintation
 @app.post("")
 async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
     query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
@@ -93,6 +98,7 @@ async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float
         
     return paginate(datas)
 
+# get chapters of book
 @app.get("/chapters/{id_book}", response_model=list[ShowChapter])
 async def get_books_with_chapters(id_book:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     query1 = (select(Chapter).options(selectinload(Chapter.pages)).where(Chapter.book_id == id_book))
@@ -110,6 +116,7 @@ async def get_books_with_chapters(id_book:int,me = Depends(get_current_user),ses
             datas.append(data)
     return datas
 
+# get pages of chapter with pagintation
 @app.get("/get_pages_by_chapter/{id_chapter}")
 async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)) -> Page[ShowPage] :
     query1 = (select(PageModel).where(PageModel.chapter_id == id_chapter))
@@ -117,10 +124,10 @@ async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),ses
     return paginate(result.scalars().all())
 
 
-
 #  ---------------------work with rating---------------------
 
 
+# rate book 
 @app.post("/book/rating")
 async def create_rating(rating:CreateRating,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     try:
@@ -136,16 +143,20 @@ async def create_rating(rating:CreateRating,me = Depends(get_current_user),sessi
     return rating
 
 
-
 #  ---------------------work with ganres---------------------
 
+
+# all ganres
 @app.get("/ganres/all", response_model = list[ShowGanres])
 async def ganres(me = Depends(get_current_user), session:AsyncSession = Depends(get_session)):
     ganres = await session.scalars(select(Ganre))
     return ganres.all()
 
+
 #  ---------------------work with create(DEBUG)---------------------
 
+
+# create ganre
 @app.post("/ganres/create")
 async def create_ganre(ganre:str,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     ganre_m = Ganre(ganre=ganre)
@@ -154,24 +165,38 @@ async def create_ganre(ganre:str,me = Depends(get_current_user),session:AsyncSes
     await session.refresh(ganre_m) 
     return ganre_m
 
+# create book
 @app.post("/create")
-async def create_book(book_data:CreateBook = Depends() ,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def create_book(book_data:CreateBook = Depends(CreateBook), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     book:Book= Book(title = book_data.title, author = book_data.author, desc = book_data.desc, writen_date = book_data.writen_date, age_of_book = book_data.age_of_book)
     for i in book_data.ganres:
         ganre = await session.scalar(select(Ganre).where(Ganre.id == i))
         if ganre:
             book.ganres.append(ganre)
-    file_name = str(book_data.title)
-    file_path = f"books_img/{file_name}"
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    book.file_path = file_path
+
     session.add(book)
     
     await session.commit()
     await session.refresh(book)
     return book
 
+# create img for book
+@app.post("/create/img/{id_book}")
+async def create_img(id_book:int,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    book = await session.scalar(select(Book).where(Book.id == id_book))
+    if book:
+        file_name = str(book.id) + ".jpg"
+        file_path = f"images/books_img/{file.filename}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        book.file_path = file.filename
+        session.add(book)
+        await session.commit()
+        await session.refresh(book)
+        return book
+    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
+
+# create chapter   
 @app.post("/chapter/create")
 async def create_chapter(chapter_data:list[CreateChapter],me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):  
 
@@ -183,6 +208,7 @@ async def create_chapter(chapter_data:list[CreateChapter],me = Depends(get_curre
     
     return True
 
+# create pages
 @app.post("/pages/create")
 async def update_pages(pages_data:list[CreatePage],me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     for i in pages_data:
