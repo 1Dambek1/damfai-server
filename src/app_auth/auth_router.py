@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from .auth_schema import RegisterUser, LoginUser, ShowUser, UpdateUser
+from .auth_schema import RegisterUser, LoginUser, ShowUser, ShowUserWithToken, UpdateUser
 from .auth_utils.utils import decode_password, check_password, create_access_token
 
 

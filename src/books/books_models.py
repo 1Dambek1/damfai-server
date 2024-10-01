@@ -43,7 +43,8 @@ class Book(Base):
 
     ratings:Mapped[list["Rating"]] = relationship(back_populates="book", uselist=True)
 
-    favourite_for:Mapped[list["User"]] = relationship(back_populates="favourite", uselist=True, secondary="favourite_table")
+    favourite_for_users:Mapped[list["User"]] = relationship(back_populates="favourite_books", uselist=True, secondary="favourite_user_table")
+  
 
 class Chapter(Base):
     
@@ -71,8 +72,7 @@ class PageModel(Base):
     chapter_id:Mapped[int] = mapped_column(ForeignKey("chapter_table.id"))
     chapter:Mapped["Chapter"] = relationship(uselist=False, back_populates="pages")
 
-    bookmark_for:Mapped[list["User"]] = relationship(back_populates="bookmarks", uselist=True, secondary="bookmark_table")
-
+    bookmarks_for_user:Mapped[list["User"]] = relationship(back_populates="bookmarks_on_page", uselist=True, secondary="bookmark_user_table")
 
 
 class Ganre(Base):  

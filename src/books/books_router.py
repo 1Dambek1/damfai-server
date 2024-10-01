@@ -1,3 +1,4 @@
+import shutil
 from typing import Optional
 
 import pandas as pd
@@ -29,6 +30,13 @@ app = APIRouter(prefix="/books", tags=["books"])
 
 
 # ---------------------work with book---------------------
+@app.get("/img")
+async def main(id_book:str, session:AsyncSession = Depends(get_session)):
+    book = await session.scalar(select(Book).where(Book.id == id_book))
+    if book:
+        return FileResponse(f"{book.file_path}")
+    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
+
 @app.post("")
 async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
     query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
@@ -109,9 +117,6 @@ async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),ses
     return paginate(result.scalars().all())
 
 
-#  ---------------------work with recomendations---------------------
-
-
 
 #  ---------------------work with rating---------------------
 
@@ -129,6 +134,7 @@ async def create_rating(rating:CreateRating,me = Depends(get_current_user),sessi
         })
     await session.refresh(rating)
     return rating
+
 
 
 #  ---------------------work with ganres---------------------
@@ -149,13 +155,17 @@ async def create_ganre(ganre:str,me = Depends(get_current_user),session:AsyncSes
     return ganre_m
 
 @app.post("/create")
-async def create_book(book_data:CreateBook,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    
+async def create_book(book_data:CreateBook = Depends() ,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     book:Book= Book(title = book_data.title, author = book_data.author, desc = book_data.desc, writen_date = book_data.writen_date, age_of_book = book_data.age_of_book)
     for i in book_data.ganres:
         ganre = await session.scalar(select(Ganre).where(Ganre.id == i))
         if ganre:
             book.ganres.append(ganre)
+    file_name = str(book_data.title)
+    file_path = f"books_img/{file_name}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    book.file_path = file_path
     session.add(book)
     
     await session.commit()
@@ -163,7 +173,7 @@ async def create_book(book_data:CreateBook,me = Depends(get_current_user),sessio
     return book
 
 @app.post("/chapter/create")
-async def create_chapter(chapter_data:list[CreateChapter],me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def create_chapter(chapter_data:list[CreateChapter],me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):  
 
     for i in chapter_data:
         chapter = Chapter(title = i.title, numberOfChapter = i.numberOfChapter, book_id = i.book_id)

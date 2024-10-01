@@ -6,9 +6,9 @@ from ..app_auth.auth_models import User
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
-class Favourite(Base):
+class FavouriteUser(Base):
     
-    __tablename__ = "favourite_table"
+    __tablename__ = "favourite_user_table"
 
 
     user_id:Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
@@ -16,9 +16,9 @@ class Favourite(Base):
     
 
 
-class Bookmark(Base):
+class BookmarkUser(Base):
     
-    __tablename__ = "bookmark_table"
+    __tablename__ = "bookmark_user_table"
 
     user_id:Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
     page_id:Mapped[int] = mapped_column(ForeignKey("page_table.id"), primary_key=True)

@@ -1,4 +1,5 @@
 from typing import Optional
+from fastapi import File, UploadFile
 from pydantic import BaseModel
 import datetime
 
@@ -54,6 +55,7 @@ class CreateBook(BaseModel):
     writen_date:Optional[datetime.date] = None
     ganres: list[int]
     age_of_book:int
+
 
 class ShowBook(BaseModel):
     
