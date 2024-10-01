@@ -43,7 +43,7 @@ async def main(id_book:int, session:AsyncSession = Depends(get_session)):
 
 # get filter books with pagintation
 @app.post("")
-async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,me = Depends(get_current_user),user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
+async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
     query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
     result = await session.execute(query1)
     result = result.scalars().all()
@@ -100,7 +100,7 @@ async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float
 
 # get chapters of book
 @app.get("/chapters/{id_book}", response_model=list[ShowChapter])
-async def get_books_with_chapters(id_book:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get_session)):
     query1 = (select(Chapter).options(selectinload(Chapter.pages)).where(Chapter.book_id == id_book))
     result = await session.execute(query1)
     result = result.scalars().all()
@@ -148,7 +148,7 @@ async def create_rating(rating:CreateRating,me = Depends(get_current_user),sessi
 
 # all ganres
 @app.get("/ganres/all", response_model = list[ShowGanres])
-async def ganres(me = Depends(get_current_user), session:AsyncSession = Depends(get_session)):
+async def ganres(session:AsyncSession = Depends(get_session)):
     ganres = await session.scalars(select(Ganre))
     return ganres.all()
 
