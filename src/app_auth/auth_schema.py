@@ -62,5 +62,7 @@ class UpdateUser(BaseModel):
     email: EmailStr    
 
     dob:datetime.date
+
+    password:str | bytes
     
     

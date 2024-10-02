@@ -65,19 +65,11 @@ async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,sessi
     me.email = data.email
     me.dob = data.dob
     me.name = data.name
-    me.surname = data.surname
+    me.surname = data.surname    
+    me.password = await decode_password(password=data.password)
+
     await session.commit()
     await session.refresh(me)
 
     return me
 
-# update password user
-@app.put("/update_password", response_model=ShowUser)
-async def update_user(password:str,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
-    
-    await session.refresh(me)
-    me.password = await decode_password(password=password)
-    await session.commit()
-    await session.refresh(me)
-
-    return me

@@ -30,7 +30,13 @@ app = APIRouter(prefix="/books", tags=["books"])
 
 
 # ---------------------work with book---------------------
-
+@app.get("/book")
+async def get_book(id_book:int, session:AsyncSession = Depends(get_session)):
+    book = await session.scalar(select(Book).where(Book.id == id_book))
+    if book:
+        return book
+    else:
+        raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 # img for book
 @app.get("/img/{id_book}")
 async def main(id_book:int, session:AsyncSession = Depends(get_session)):
@@ -217,6 +223,7 @@ async def update_pages(pages_data:list[CreatePage],me = Depends(get_current_user
     await session.commit()
     return True
 add_pagination(app)  
+
 
 
 
