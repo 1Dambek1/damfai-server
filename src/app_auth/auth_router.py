@@ -63,7 +63,6 @@ async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,sessi
     
     await session.refresh(me)
     me.email = data.email
-    me.dob = data.dob
     me.name = data.name
     me.surname = data.surname    
     me.password = await decode_password(password=data.password)

@@ -1,13 +1,18 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .db import Base, engine
-
+import json
 from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
 from .profile.profile_router import app as profile_app
 from .gigachat_app.gigachat_router import app as gigachat_app
+from .db import get_session
+from .books.books_models import Book
+import pathlib
+from sqlalchemy.ext.asyncio import AsyncSession
+import datetime
 
 app = FastAPI(title="damfai")
 
@@ -38,6 +43,20 @@ async def create_db():
 @app.get("/db")
 async def create():
     await create_db()
+    return True
+@app.get('/parse`')
+async def parse(session: AsyncSession = Depends(get_session)):
+
+
+    BASE_DIR  = pathlib.Path(__file__).parent.parent.parent
+    with open(f"{BASE_DIR}app/parse/data.json", "r", encoding='utf-8') as f:
+        data = json.load(f) 
+    
+    for i in data:
+        book = Book(title=i['title'], author=i['author'], desc=i['desc'], age_of_book=i['age_of_book'])
+        session.add(book)
+    await session.commit()
+    
     return True
 
 # alembic

@@ -82,11 +82,11 @@ def generate_book(book_id: int, pages_count: int):
     }
     return book
 data = [
-    # generate_book(94, 50),
-    # generate_book(12, 7),
-    # generate_book(69, 41),
-    # generate_book(67, 17),
-    # generate_book(4207, 5),
+    generate_book(94, 50),
+    generate_book(12, 7),
+    generate_book(69, 41),
+    generate_book(67, 17),
+    generate_book(4207, 5),
     generate_book(64, 46)
 
 
@@ -94,4 +94,5 @@ data = [
 
 with open("parse/data.json", "w", encoding='utf-8') as f:
     json.dump(data, f)
+
 
