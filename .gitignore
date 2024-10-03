@@ -1,3 +1,4 @@
 /venv/
 /db_data/
 /__pycache__/
+parse/data.json
