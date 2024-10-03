@@ -21,7 +21,7 @@ from sqlalchemy.exc import IntegrityError
 from ..get_current_me import get_current_user
 from ..db import get_session
 
-from .books_schema import CreateBook, CreateRating, ShowBook, ShowChapter, CreateChapter, CreatePage, ShowPage, ShowGanres
+from .books_schema import CreateBook, CreateRating, ShowBook, ShowChapter, CreateChapter, CreatePage, ShowPage, ShowGanres,ShowBookWithChapters
 from .books_models import Book, Chapter, PageModel, Rating, Ganre,GanreBook
 from .books_filter import BookFilter
 
@@ -37,6 +37,7 @@ async def get_book(id_book:int, session:AsyncSession = Depends(get_session)):
         return book
     else:
         raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
+
 # img for book
 @app.get("/img/{id_book}")
 async def main(id_book:int, session:AsyncSession = Depends(get_session)):
@@ -105,13 +106,11 @@ async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float
     return paginate(datas)
 
 # get chapters of book
-@app.get("/chapters/{id_book}", response_model=list[ShowChapter])
+@app.get("/chapters/{id_book}", response_model=ShowBookWithChapters)
 async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get_session)):
-    query1 = (select(Chapter).options(selectinload(Chapter.pages)).where(Chapter.book_id == id_book))
-    result = await session.execute(query1)
-    result = result.scalars().all()
+    result = await session.scalar((select(Book).options(selectinload(Book.chapters).selectinload(Chapter.pages)).where(Book.id == id_book)))
     datas = []
-    for i in result:
+    for i in result.chapters:
             data = {
                 "id":i.id,
                 "title":i.title,
@@ -120,7 +119,8 @@ async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get
             }
 
             datas.append(data)
-    return datas
+    data_set = {"id":result.id,"title":result.title,"author":result.author, "chapters":datas}
+    return data_set
 
 # get pages of chapter with pagintation
 @app.get("/get_pages_by_chapter/{id_chapter}")
@@ -130,7 +130,7 @@ async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),ses
     return paginate(result.scalars().all())
 
 
-#  ---------------------work with rating---------------------
+#  ---------------------work with rating--------------s-------
 
 
 # rate book 
