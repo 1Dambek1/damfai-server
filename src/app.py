@@ -7,6 +7,7 @@ from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
 from .profile.profile_router import app as profile_app
+from .gigachat_app.gigachat_router import app as gigachat_app
 
 app = FastAPI(title="damfai")
 
@@ -21,7 +22,7 @@ app.include_router(auth_app)
 app.include_router(books_app)
 app.include_router(bookmarks_app)
 app.include_router(profile_app)
-
+app.include_router(gigachat_app)
 # DB(DEBUG)
 
 async def create_db():
