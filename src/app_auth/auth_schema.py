@@ -56,12 +56,12 @@ class ShowUserWithToken(BaseModel):
 
 class UpdateUser(BaseModel):
 
-    name:str
-    surname:str
+    name:str | None
+    surname:str | None
 
-    email: EmailStr    
+    email: EmailStr | None  
 
 
-    password:str | bytes
+    password:str | bytes | None
     
     

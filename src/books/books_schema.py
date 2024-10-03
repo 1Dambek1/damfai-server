@@ -72,4 +72,11 @@ class ShowBook(BaseModel):
 
 
 
+class ShowBookWithChapters(BaseModel):
+    
+    id:int
+    title:str
+    author:str
+
+    chapters:   list[ShowChapter] |  None
 

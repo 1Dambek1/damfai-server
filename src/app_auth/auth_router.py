@@ -62,10 +62,14 @@ async def register_user(data:RegisterUser ,session:AsyncSession = Depends(get_se
 async def update_user(data:UpdateUser,me:User = Depends(get_current_user) ,session:AsyncSession = Depends(get_session)):
     
     await session.refresh(me)
-    me.email = data.email
-    me.name = data.name
-    me.surname = data.surname    
-    me.password = await decode_password(password=data.password)
+    if data.email:
+        me.email = data.email
+    if data.name:
+        me.name = data.name
+    if data.surname:
+        me.surname = data.surname    
+    if data.password:
+        me.password = await decode_password(password=data.password)
 
     await session.commit()
     await session.refresh(me)
