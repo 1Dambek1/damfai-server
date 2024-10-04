@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from .db import Base, engine
-import json
+
 from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
@@ -43,20 +43,6 @@ async def create_db():
 async def create():
     await create_db()
     return True
-@app.get('/parse`')
-async def parse(session: AsyncSession = Depends(get_session)):
-
-
-    BASE_DIR  = pathlib.Path(__file__).parent.parent.parent
-    with open(f"{BASE_DIR}app/parse/data.json", "r", encoding='utf-8') as f:
-        data = json.load(f) 
-    
-    for i in data:
-        book = Book(title=i['title'], author=i['author'], desc=i['desc'], age_of_book=i['age_of_book'])
-        session.add(book)
-    await session.commit()
-    
-    return True
 
 # alembic
 # CORS
@@ -92,7 +78,7 @@ html = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://localhost:8000/ws");
+            var ws = new WebSocket("ws://localhost:8000/gigachat/ws/generate_questions/1");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
