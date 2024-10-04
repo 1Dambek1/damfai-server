@@ -61,9 +61,32 @@ async def favourite(page_id:int,user_id = Depends(get_current_id),me = Depends(g
 
 
 
+# delete bookmarks
+@app.delete("")
+async def favourite(page_id:int,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    user:User = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.bookmarks_on_page)))
+    if user:
+        page = await session.scalar(select(PageModel).where(PageModel.id == page_id))
+        if page:
+            user.bookmarks_on_page.remove(page)
+            await session.commit()
+            return {"data":"Page is deleted from bookmarks"}
+            
+        raise HTTPException(detail={"detail":"Page is not exist", "status_code":400}, status_code=400)
+    raise HTTPException(detail={"detail":"user is not exist", "status_code":400}, status_code=400)
 
-
-
+@app.delete("/favourite")
+async def favourite(book_id:int,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    user:User = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books)))
+    if user:
+        book = await session.scalar(select(Book).where(Book.id == book_id))
+        if book:
+            user.favourite_books.remove(book)
+            await session.commit()
+            return {"data":"Book is deleted from favourite"}
+            
+        raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
+    raise HTTPException(detail={"detail":"user is not exist", "status_code":400}, status_code=400)
 
 
 # @app.get("/tests")

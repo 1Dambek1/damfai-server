@@ -1,8 +1,17 @@
+import json
 import os
-from fastapi import FastAPI, WebSocket
+import pathlib
+import random
+import select
+from fastapi import FastAPI, Depends, logger
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from .db  import get_session
+
 from .db import Base, engine
+
+from .books.books_models import Book, Ganre, Chapter, PageModel
 
 from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
@@ -100,3 +109,43 @@ async def get():
     return HTMLResponse(html)
 
 
+ganres = ["Роман",
+          "Мистика",
+          "Детективы и триллеры",
+          "Социально-психологический",
+          "Любовные романы",
+          "Драма и трагедия",
+          "Сатира",
+          "Проза",
+          "Эпистолярный роман",
+          "Сказки и легенды",
+          "Исторический роман",
+          "Новелла",
+          "Ужасы",
+          "Приключенческие",
+          "Русская класика",
+          "Поэзия",
+          "Роман в письмах",
+          "Философия",
+
+          ]
+
+@app.get("/ganres")
+async def parse(session:AsyncSession = Depends(get_session)):
+    for i in ganres:
+        ganre = Ganre(ganre=i)
+        session.add(ganre)
+    await session.commit()
+    return True
+@app.get("/parse_book")
+async def parse(session:AsyncSession = Depends(get_session)):
+    BASE_DIR  = pathlib.Path(__file__).parent.parent.parent
+    with open(f"{BASE_DIR}app/parse/data.json", "r", encoding='utf-8') as f:
+
+        data = json.load(f)
+        for i in data:
+            book = Book(title=i["title"], author=i["author"], desc=i["desc"], age_of_book=i["age_of_book"])
+            for i2 in i["ganre_id"]:
+                ganre = await session.scalar(select(Ganre).where(Ganre.ganre == i2))
+                pass
+        return data

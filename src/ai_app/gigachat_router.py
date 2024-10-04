@@ -56,20 +56,21 @@ async def ask_question_ws(book_id:int,websocket: WebSocket,session:AsyncSession 
         await websocket.send_text(str(e))
         await websocket.close() 
 
-
+# generate questions(+- 20 секунд)
 @app.websocket("/ws/generate_questions/{book_id}")
 async def generate_questions(book_id:int , webscoket:WebSocket, session:AsyncSession = Depends(get_session)):
     book = await session.scalar(select(Book).where(Book.id == book_id))
     text = f"Создай 2 вопроса о книге '{book.title}' автора '{book.author}' {make_question_about_book_system}"
+    context = [SystemMessage(content=text)]
+    quest = []
+    new_text = ""
     if book:
         await webscoket.accept()
         try:
             while True:
                 data = await webscoket.receive_text()
 
-                context = [SystemMessage(content=text)]
-                quest = []
-                new_text = ""
+
     
                 for i in range(round(int(data)/2)):
 

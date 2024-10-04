@@ -22,12 +22,19 @@ class EnvData(BaseSettings):
     DB_URl_ASYNC:str
     
 
+class EnvGigaChat(BaseSettings):
+    # GIGACHAT
+    AUTH_KEY_KIRIL:str
+    AUTH_KEY_DENIS:str
+    SCOPE:str
 
 
 class Config(BaseModel):
     
     env_data:EnvData = EnvData()
     
+    gigachat_data:EnvGigaChat = EnvGigaChat()
+
     auth_data:AuthData = AuthData()
     
     
