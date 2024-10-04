@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from ..get_current_me import get_current_id, get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
-from ..books.books_models import Book, PageModel
+from ..books.books_models import Book, Chapter, PageModel
 
-from .bookmarks_schema import ShowUserWithBookMarks, ShowUserWithFavourite
+from .bookmarks_schema import ShowBookmark, ShowFavourite
 from .bookmarsk_models import FavouriteUser, BookmarkUser
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,16 +17,36 @@ app = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 #  ---------------------get bookmarks and favourite---------------------
 
 # get bookmarks
-@app.get("/")
+@app.get("/", response_model=list[ShowBookmark])
 async def get_bookmarks(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    bookmarks = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.bookmarks_on_page)))
-    return bookmarks
+    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.bookmarks_on_page).selectinload(PageModel.chapter).selectinload(Chapter.book)))
+
+    dataset  = []
+    for i in user.bookmarks_on_page:
+        data = {
+            "id":i.chapter.book.id,
+            "title":i.chapter.book.title,
+            "author":i.chapter.book.author,
+            "desc":i.chapter.book.desc,
+            "writen_date":i.chapter.book.writen_date,
+            "age_of_book":i.chapter.book.age_of_book,
+            "id_current_chapter":i.chapter_id,
+            "current_page":i.id
+        }
+        dataset.append(data)
+    return dataset
+
 
 # get favourite
-@app.get("/favourite")
+@app.get("/favourite", response_model=list[ShowFavourite])
 async def get_bookmarks(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     favourite = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books)))
-    return favourite
+    return favourite.favourite_books
+
+
+
+
+
 
 
 #  ---------------------create bookmarks and favourite---------------------
@@ -89,9 +109,3 @@ async def favourite(book_id:int,user_id = Depends(get_current_id),me = Depends(g
     raise HTTPException(detail={"detail":"user is not exist", "status_code":400}, status_code=400)
 
 
-# @app.get("/tests")
-# async def test(session:AsyncSession = Depends(get_session)):
-#     test1 = await session.scalars(select(FavouriteUser))
-#     test2 = await session.scalars(select(BookmarkUser)) 
-
-#     return {"data1":test1.all(), "data2":test2.all()}

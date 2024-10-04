@@ -70,16 +70,18 @@ def generate_book(book_id: int, pages_count: int):
 
     author = soup.find('div', {'class': 'author'}).get_text()
     title = soup.find('h1').get_text()
+    print(title)
+    ganre_id  = list(map(int, input().split()))
     book = {
-      
-        'chapters': chapters,
-        'age_of_book': random.randint(1, 18),
-        # 'writen_date': datetime.datetime.now().time(),
         'desc': '', 
         'author': author,
         'title':title,
-
+        "ganre_id":ganre_id,
+        'chapters': chapters,
+        'age_of_book': random.randint(1, 18)
     }
+    print("_"*10)
+
     return book
 data = [
     generate_book(94, 50),
@@ -87,8 +89,12 @@ data = [
     generate_book(69, 41),
     generate_book(67, 17),
     generate_book(4207, 5),
-    generate_book(64, 46)
-
+    generate_book(64, 46),
+    generate_book(475, 46),
+    generate_book(1310, 27),
+    generate_book(1334,45),
+    generate_book(107, 15),
+    generate_book(479, 19)
 
 ]
 

@@ -1,42 +1,28 @@
 import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr , field_validator
-class ShowPage(BaseModel):
-    
-    id:int
-
-class ShowChapter(BaseModel):
-    
-    id:int
-    title:Optional[str] = None
-    numberOfChapter:int
 
 
-class ShowUserWithBookMarks(BaseModel):
-    
-    id:int
-    
-    name:str
-    surname:str
-    email: EmailStr
-    
-    created_at:datetime.datetime
 
-    dob:datetime.date
 
-    bookmarks:list[ShowPage] | None
+class ShowBookmark(BaseModel):
 
-class ShowUserWithFavourite(BaseModel):
-    
-    id:int
-    
-    name:str
-    surname:str
-    email: EmailStr
-    
-    created_at:datetime.datetime
+    id: int
+    title: str
+    author: str
+    desc: str
+    writen_date: datetime.date
+    age_of_book: int 
 
-    dob:datetime.date
+    id_current_chapter: int
+    current_page: int  
 
-    bookmarks:list[ShowChapter] | None
-    
+
+class ShowFavourite(BaseModel):
+
+  id:int
+  title: str
+  author: str
+  desc: str
+  writen_date: datetime.date
+  age_of_book: int
