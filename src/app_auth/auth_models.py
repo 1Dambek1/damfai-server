@@ -39,3 +39,7 @@ class User(Base):
     favourite_books:Mapped[list["Book"]] = relationship(back_populates="favourite_for_users", uselist=True, secondary="favourite_user_table")
 
     bookmarks_on_page:Mapped[list["PageModel"]] = relationship(back_populates="bookmarks_for_user", uselist=True, secondary="bookmark_user_table")
+
+    reading_books:Mapped[list["Book"]] = relationship(uselist=True, secondary="reading_book_table")
+
+    is_confirm:Mapped[bool] = mapped_column(default=False)
