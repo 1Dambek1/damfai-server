@@ -18,7 +18,10 @@ from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
 from .profile.profile_router import app as profile_app
 from .ai_app.gigachat_router import app as gigachat_app
-
+from .db import get_session
+from .books.books_models import Book
+from sqlalchemy.ext.asyncio import AsyncSession
+import pathlib
 app = FastAPI(title="damfai")
 
 if not os.path.exists("images"):
