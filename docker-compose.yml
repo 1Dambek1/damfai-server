@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   app:
@@ -21,3 +21,13 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data/
 
+  app_tg:
+    build: .
+    container_name: tg_app
+    depends_on:
+      - db
+
+    env_file:
+      - .env
+    ports:
+      - 4200:4200

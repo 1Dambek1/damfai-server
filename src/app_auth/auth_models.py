@@ -39,3 +39,12 @@ class User(Base):
     favourite_books:Mapped[list["Book"]] = relationship(back_populates="favourite_for_users", uselist=True, secondary="favourite_user_table")
 
     bookmarks_on_page:Mapped[list["PageModel"]] = relationship(back_populates="bookmarks_for_user", uselist=True, secondary="bookmark_user_table")
+    user_tg:Mapped[list["UserTg"]] = relationship(uselist=True, back_populates="user")
+	
+
+class UserTg(Base):
+    __tablename__ = "user_tg_table"
+    id:Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    tg_id:Mapped[int]
+    user_id:Mapped[uuid.UUID] = mapped_column(ForeignKey('user_table.id', ondelete='CASCADE'))
+    user:Mapped["User"] = relationship(uselist=False, back_populates="user_tg")

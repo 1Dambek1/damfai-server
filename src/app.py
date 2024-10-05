@@ -168,3 +168,5 @@ async def parse(session:AsyncSession = Depends(get_session)):
 
         await session.commit()
         return True
+    
+

@@ -28,6 +28,10 @@ class EnvGigaChat(BaseSettings):
     AUTH_KEY_DENIS:str
     SCOPE:str
 
+class TgBotEnv(BaseSettings):
+    # TG_BOT
+    TOKEN:str
+    SITE_URL:str
 
 class Config(BaseModel):
     
@@ -36,8 +40,11 @@ class Config(BaseModel):
     gigachat_data:EnvGigaChat = EnvGigaChat()
 
     auth_data:AuthData = AuthData()
+
+    
+    tg_bot_data: TgBotEnv = TgBotEnv()
     
     
-    
+
     
 config = Config()

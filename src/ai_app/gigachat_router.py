@@ -4,11 +4,9 @@ from langchain.schema import HumanMessage, SystemMessage
 from typing import Optional
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
-
-
+ 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, text
-
 from ..books.books_models import Book
 from ..get_current_me import get_current_user
 from ..db import get_session
@@ -20,7 +18,7 @@ make_question_about_book_system = 'отправь мне ответ на мой 
 app = APIRouter(prefix="/gigachat", tags=["gigachat"])
 
 async def active_model(context, model):
-    return model_for_questions.invoke(context)
+    return model.invoke(context)
 
 
 # confirm(15 секунд)
@@ -36,6 +34,7 @@ async def zip_small_text(text:str,me = Depends(get_current_user),session:AsyncSe
 async def ask_question_ws(book_id:int,websocket: WebSocket,session:AsyncSession = Depends(get_session)):
     
     book = await session.scalar(select(Book).where(Book.id == book_id))
+    logger.logger.info(book.author)
     if book:
             context = [SystemMessage(f"Дай ответ на следующий вопрос обращаясь только к книге '{book.title}' автора '{book.author}'")]
     else:
@@ -45,8 +44,10 @@ async def ask_question_ws(book_id:int,websocket: WebSocket,session:AsyncSession 
     await websocket.accept()
     try:
         while True:
+            
             data = await websocket.receive_text()
             context.append(HumanMessage(content=data)) 
+            await websocket.send_text('Идёт генерация...')
             result = await active_model(context, model=model_for_user_questions)
             await websocket.send_text(str(result.content))
             context = [SystemMessage(f"Дай ответ на следующий вопрос обращаясь только к книге '{book.title}' автора '{book.author}'")]
