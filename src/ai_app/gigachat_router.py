@@ -20,7 +20,7 @@ make_question_about_book_system = 'отправь мне ответ на мой 
 app = APIRouter(prefix="/gigachat", tags=["gigachat"])
 
 async def active_model(context, model):
-    return model_for_questions.invoke(context)
+    return model.invoke(context)
 
 
 # confirm(15 секунд)

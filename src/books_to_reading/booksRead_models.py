@@ -1,3 +1,4 @@
+import datetime
 from ..db import Base
 
 from ..books.books_models import Book, PageModel, Rating, Ganre,GanreBook
@@ -20,3 +21,7 @@ class Reading_Book(Base):
     last_reading_page:Mapped[int] = mapped_column(default=0)
 
     is_read:Mapped[bool] = mapped_column(default=False)
+
+    start_to_read:Mapped[datetime.date] = mapped_column(default=datetime.datetime.now().date())
+
+    finish_to_read:Mapped[datetime.date] = mapped_column(nullable=True)

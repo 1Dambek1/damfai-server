@@ -45,7 +45,8 @@ class Book(Base):
 
     favourite_for_users:Mapped[list["User"]] = relationship(back_populates="favourite_books", uselist=True, secondary="favourite_user_table")
 
-  
+    # emabings:Mapped[list[float]] = [1, -10, 12 , 14, 18]
+
 
 class Chapter(Base):
     
