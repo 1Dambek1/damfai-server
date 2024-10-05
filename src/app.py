@@ -17,41 +17,30 @@ from .books.books_models import Book, Ganre, Chapter, PageModel
 from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
-from .profile.profile_router import app as profile_app
+from .analytics.analytics_router import app as analytic_app
 from .ai_app.gigachat_router import app as gigachat_app
+from .books_to_reading.booksRead_router import app as books_read_app
 
 app = FastAPI(title="damfai")
+
+
+# routers 
+
+app.include_router(auth_app)
+app.include_router(books_app)
+app.include_router(bookmarks_app)
+app.include_router(analytic_app)
+app.include_router(gigachat_app)
+app.include_router(books_read_app)
+
 
 if not os.path.exists("images"):
     os.mkdir("images")
 
 if not os.path.exists("images/books_img"):
     os.mkdir("images/books_img")
-# routers 
 
-app.include_router(auth_app)
-app.include_router(books_app)
-app.include_router(bookmarks_app)
-app.include_router(profile_app)
-app.include_router(gigachat_app)
-# DB(DEBUG)
 
-async def create_db():
-    
-    async with engine.begin() as conn:
-        try:
-            await conn.run_sync(Base.metadata.drop_all)
-        except:
-            pass
-        await  conn.run_sync(Base.metadata.create_all)
-
-        
-@app.get("/db")
-async def create():
-    await create_db()
-    return True
-
-# alembic
 # CORS
 
 origins = [
@@ -69,6 +58,21 @@ app.add_middleware(
 
 
 
+# __________________________________DB(DEBUG)__________________________________
+async def create_db():
+    
+    async with engine.begin() as conn:
+        try:
+            await conn.run_sync(Base.metadata.drop_all)
+        except:
+            pass
+        await  conn.run_sync(Base.metadata.create_all)
+
+        
+@app.get("/db")
+async def create():
+    await create_db()
+    return True
 
 html = """
 <!DOCTYPE html>
@@ -138,6 +142,10 @@ async def parse(session:AsyncSession = Depends(get_session)):
         session.add(ganre)
     await session.commit()
     return True
+
+
+
+
 @app.get("/parse_book")
 async def parse(session:AsyncSession = Depends(get_session)):
     BASE_DIR  = pathlib.Path(__file__).parent.parent.parent
@@ -152,11 +160,11 @@ async def parse(session:AsyncSession = Depends(get_session)):
                 book.ganres.append(ganre)
             session.add(book)
             await session.flush()
+            num = 0
             for i2 in i["chapters"]:
                 chapter = Chapter(title=i2["title"], numberOfChapter=i2["numberOfChapter"], book_id = book.id)
                 session.add(chapter)
                 await session.flush()
-                num = 0
                 for i3 in i2["pages"]:
                     num += 1
                     page = PageModel(numberOfPage=num, text=i3, chapter_id = chapter.id)
