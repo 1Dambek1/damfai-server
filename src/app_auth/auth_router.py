@@ -17,7 +17,7 @@ app = APIRouter(prefix="/auth", tags=["auth"])
 
 # get me
 @app.get("/me", response_model=ShowUser)
-async def me(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def me(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
      return me
 
 # login

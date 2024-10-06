@@ -5,6 +5,7 @@ from ..get_current_me import get_current_id, get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Book, Chapter, PageModel
+from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
 
 from  .booksRead_models import Reading_Book
 from .booksRead_schema import ShowReadingBook
@@ -79,6 +80,13 @@ async def read_page(page_id:int,book_id:int,user_id = Depends(get_current_id),me
         page = await session.scalar(select(PageModel).where(PageModel.id == page_id).options(selectinload(PageModel.chapter).selectinload(Chapter.book)))
         if page:
             if page.chapter.book_id == book_id:
+                page_r = await session.scalar(select(PagesPerDay).where(PagesPerDay.date == datetime.datetime.now().date(), PagesPerDay.user_id == user_id))
+                if page_r:
+                    page_r.pages_count += 1
+                else:
+                    page_r = PagesPerDay(date=datetime.datetime.now().date(),pages_count=1,user_id=user_id)
+                    session.add(page_r)
+                
                 if r_book.last_reading_page < page.numberOfPage:
                     r_book.last_reading_page = page.numberOfPage
                     await session.commit()

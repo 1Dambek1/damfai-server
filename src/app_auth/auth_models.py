@@ -1,3 +1,4 @@
+import json
 from ..db import Base
 
 
@@ -5,8 +6,8 @@ import datetime
 from typing import Annotated
 import uuid
 import typing
-
-from sqlalchemy import  text, ForeignKey
+from sqlalchemy.dialects.postgresql.array import ARRAY
+from sqlalchemy import  JSON, Column, Integer, text, ForeignKey
 from sqlalchemy.orm import  Mapped, mapped_column, relationship
 
 if typing.TYPE_CHECKING:   
@@ -33,6 +34,8 @@ class User(Base):
     dob:Mapped[datetime.date]
     
     created_at:Mapped[created_at]
+
+    words_per_minute:Mapped[str] = mapped_column(default=json.dumps([240]))
 
     favourite_books:Mapped[list["Book"]] = relationship(back_populates="favourite_for_users", uselist=True, secondary="favourite_user_table")
     bookmarks_on_page:Mapped[list["PageModel"]] = relationship(back_populates="bookmarks_for_user", uselist=True, secondary="bookmark_user_table")

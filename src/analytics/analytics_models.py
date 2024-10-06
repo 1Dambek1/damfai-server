@@ -25,7 +25,7 @@ class MinutesPerDay(Base):
     
     id:Mapped[int] = mapped_column(primary_key=True)
     date:Mapped[datetime.date] = mapped_column()
-    minutes_count:Mapped[int] = mapped_column(default=0)
+    minutes_count:Mapped[float] = mapped_column(default=0)
 
     user_id:Mapped[int] = mapped_column(ForeignKey("user_table.id", ondelete="CASCADE"))
     user:Mapped["User"] = relationship(uselist=False, back_populates="minutes_per_day")

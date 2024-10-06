@@ -135,18 +135,25 @@ async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),ses
 
 # rate book 
 @app.post("/book/rating")
-async def create_rating(rating:CreateRating,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    try:
-        rating = Rating(book_id = rating.book_id, rating=rating.rating, user_id=me.id)
-        session.add(rating)
+async def create_rating(rating_data:CreateRating,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    rating_your = await session.scalar(select(Rating).where(Rating.book_id == rating_data.book_id, Rating.user_id == me.id))
+    if rating_your:
+        rating_your.rating = rating_data.rating
         await session.commit()
-    except IntegrityError:
-        raise HTTPException(status_code=400, detail={
-                "data":"book is not exist",
-                "status":400
-        })
-    await session.refresh(rating)
-    return rating
+        await session.refresh(rating_your)
+        return rating_your
+    else:
+        try:
+            rating = Rating(book_id = rating_data.book_id, rating=rating_data.rating, user_id=me.id)
+            session.add(rating)
+            await session.commit()
+        except IntegrityError:
+            raise HTTPException(status_code=400, detail={
+                    "data":"book is not exist",
+                    "status":400
+            })
+        await session.refresh(rating)
+        return rating
 
 
 #  ---------------------work with ganres---------------------
