@@ -39,6 +39,8 @@ class Book(Base):
 
     chapters:Mapped[list["Chapter"]] = relationship(back_populates="book", uselist=True)
 
+    # embadings:Mapped[str]
+
     ganres:Mapped[list["Ganre"]] = relationship(back_populates="books", uselist=True, secondary="ganre_book_table")
 
     ratings:Mapped[list["Rating"]] = relationship(back_populates="book", uselist=True)

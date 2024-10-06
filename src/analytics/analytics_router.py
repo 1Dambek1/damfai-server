@@ -1,25 +1,19 @@
 import datetime
 import json
-import shutil
-from typing import Optional
-import os 
 from calendar import monthrange
 
-
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import FileResponse
-from fastapi.logger import logger
 
 from ..books_to_reading.booksRead_models import Reading_Book
 
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from ..get_current_me import get_current_user, get_current_id
 from ..db import get_session
 from ..app_auth.auth_models import User 
+from ..books.books_models import Ganre,Book
 
 from .analytics_models import PagesPerDay, MinutesPerDay
 from .analytics_schema import CommonReadingInfo, PerDateData, PerMonthData
@@ -85,7 +79,7 @@ async def update_sped_words_per_minute(speed:float,me:User = Depends(get_current
 # ________________GRAPHICS____________________
 
 # reading info
-@app.get("/reading_info", response_description=CommonReadingInfo)
+@app.get("/reading_info")
 async def get_reading_info(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.reading_books), selectinload(User.minutes_per_day), selectinload(User.pages_per_day)))
     if user:
@@ -148,7 +142,7 @@ async def get_pages_last_7_days(me = Depends(get_current_user),session:AsyncSess
     return dataset
 
 # get books last 12 months
-@app.get("/get_books_last_12 months", response_model=PerMonthData)
+@app.get("/get_books_last_12_months", response_model=PerMonthData)
 async def get_books_last_12_months(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     last_books =  await session.scalars(select(Reading_Book).where(Reading_Book.finish_to_read.between(datetime.datetime.now().date()-datetime.timedelta(days=365), datetime.datetime.now().date())))
     last_books = last_books.all()
@@ -171,20 +165,23 @@ async def get_books_last_12_months(me = Depends(get_current_user),session:AsyncS
         
     return dataset
 
-# @app.get("/favourite_ganres")
-# async def favourite_ganres(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-#     ganres = await session.scalars(select(Ganre))
-#     ganres = {}
-#     for i in ganres:
-#         ganres[i.ganre] = 0
-    
-#     user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books), selectinload(User.reading_books)))
 
-#     for i in user.favourite_books:
-#         for i2 in i.ganres:
-#             ganres[i2.ganre] += 1
-#     for i in user.reading_books :
-#         for i2 in i.ganres:
-#             ganres[i2.ganre] += 1
+@app.get("/favourite_ganres")
+async def favourite_ganres(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    ganres = await session.scalars(select(Ganre))
+    ganres_data = {}
+    for i in ganres:
+        ganres_data[i.ganre] = 0
+
+    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books).selectinload(Book.ganres), selectinload(User.reading_books).selectinload(Book.ganres)))
+    for i in user.favourite_books:
+        for i2 in i.ganres:
+            ganres_data[i2.ganre] += 1
+
+    for i in user.reading_books:
+        for i2 in i.ganres:
+            ganres_data[i2.ganre] += 0.5
     
-#     return 1
+    sorted_data =  {k: v for k, v in sorted(ganres_data.items(), key=lambda item: item[1])}
+    # return max(ganres_data, key=ganres_data.get)    
+    return sorted_data

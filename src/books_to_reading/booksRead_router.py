@@ -64,7 +64,8 @@ async def get_reading_books(user_id = Depends(get_current_id),me = Depends(get_c
                 "writen_date":i.book.writen_date,
                 "progress":progress,
                 "start_to_read":i.start_to_read,
-                "finish_to_read":i.finish_to_read
+                "finish_to_read":i.finish_to_read,
+                "is_read":i.is_read
             }
             dataset.append(data)
         await session.commit()

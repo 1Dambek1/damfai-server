@@ -3,13 +3,12 @@ import json
 import os
 import pathlib
 import random
-from fastapi import FastAPI, Depends, logger
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from .db  import get_session
-from sqlalchemy import select, func, text
-
+from sqlalchemy import select
 from .db import Base, engine
 
 from .books.books_models import Book, Ganre, Chapter, PageModel
