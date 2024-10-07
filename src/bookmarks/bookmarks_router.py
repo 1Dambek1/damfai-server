@@ -6,7 +6,6 @@ from ..db import get_session
 from ..books.books_models import Book, Chapter, PageModel
 
 from .bookmarks_schema import ShowBookmark, ShowFavourite
-from .bookmarsk_models import FavouriteUser, BookmarkUser
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, text

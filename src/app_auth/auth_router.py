@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from pydantic import EmailStr
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth_schema import RegisterUser, LoginUser, ShowUser, ShowUserWithToken, UpdateUser
@@ -17,7 +15,7 @@ app = APIRouter(prefix="/auth", tags=["auth"])
 
 # get me
 @app.get("/me", response_model=ShowUser)
-async def me(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def me(me = Depends(get_current_user)):
      return me
 
 # login

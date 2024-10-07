@@ -1,13 +1,10 @@
-import json
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, logger
+from fastapi import APIRouter, Depends, HTTPException, WebSocket
 from langchain.schema import HumanMessage, SystemMessage
-from typing import Optional
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-
+from fastapi import APIRouter, Depends, HTTPException
 
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text
+from sqlalchemy import select
 
 from ..books.books_models import Book
 from ..get_current_me import get_current_user

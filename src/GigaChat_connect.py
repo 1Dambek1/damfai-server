@@ -1,4 +1,3 @@
-from os import utime
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.chat_models.gigachat import GigaChat
 from .config import config

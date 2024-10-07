@@ -3,7 +3,6 @@ from fastapi import Depends, HTTPException
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from .app_auth.auth_utils.utils import valid_access_token
 

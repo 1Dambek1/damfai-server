@@ -4,7 +4,6 @@ from pydantic_settings import BaseSettings
 
 BASE_DIR  = Path(__file__).parent.parent
 
-
 class AuthData(BaseModel):
     private_key :Path = BASE_DIR  / "src" / "app_auth" / "tokens" / "private_key.pem"
     
@@ -28,6 +27,15 @@ class EnvGigaChat(BaseSettings):
     AUTH_KEY_DENIS:str
     SCOPE:str
 
+class TgBotEnv(BaseSettings):
+    # TG BOT   
+    TOKEN:str
+    POSTGRES_DB:str
+    POSTGRES_USER:str
+    POSTGRES_PASSWORD:str
+    SITE_URL:str
+    DATABASE_URL:str
+
 
 class Config(BaseModel):
     
@@ -36,6 +44,8 @@ class Config(BaseModel):
     gigachat_data:EnvGigaChat = EnvGigaChat()
 
     auth_data:AuthData = AuthData()
+
+    tg_bot_data:TgBotEnv = TgBotEnv()
     
     
     
