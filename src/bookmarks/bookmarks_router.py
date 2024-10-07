@@ -53,7 +53,7 @@ async def favourite_update(book_id:int,user_id = Depends(get_current_id),me = De
     if favourite:
         await session.delete(favourite)
         await session.commit()
-        return True
+        return False
     else:
         favourite = FavouriteUser(book_id=book_id, user_id=user_id)
         session.add(favourite)
@@ -67,7 +67,7 @@ async def bookmarks_update(page_id:int,user_id = Depends(get_current_id),me = De
     if bookmark:
         await session.delete(bookmark)
         await session.commit()
-        return True
+        return False
     else:
         bookmark = BookmarkUser(page_id=page_id, user_id=user_id)
         session.add(bookmark)
