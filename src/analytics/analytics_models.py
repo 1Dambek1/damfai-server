@@ -1,7 +1,6 @@
 import datetime
 from ..db import Base
 
-from ..books.books_models import Book, PageModel, Rating, Ganre,GanreBook
 from ..app_auth.auth_models import User
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship

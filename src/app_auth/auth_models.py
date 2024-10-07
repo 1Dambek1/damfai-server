@@ -6,14 +6,12 @@ import datetime
 from typing import Annotated
 import uuid
 import typing
-from sqlalchemy.dialects.postgresql.array import ARRAY
-from sqlalchemy import  JSON, Column, Integer, text, ForeignKey
+from sqlalchemy import text
 from sqlalchemy.orm import  Mapped, mapped_column, relationship
 
 if typing.TYPE_CHECKING:   
     from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
-    from ..bookmarks.bookmarsk_models import BookmarkUser, FavouriteUser
-    from ..books.books_models import Book, PageModel, Rating, Ganre,GanreBook
+    from ..books.books_models import Book, PageModel
 
 
 created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('Europe/Moscow', now())"))]

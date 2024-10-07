@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import  TYPE_CHECKING
 import uuid
 from sqlalchemy.orm  import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy import ForeignKey

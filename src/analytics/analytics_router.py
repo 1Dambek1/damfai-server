@@ -16,7 +16,7 @@ from ..app_auth.auth_models import User
 from ..books.books_models import Ganre,Book
 
 from .analytics_models import PagesPerDay, MinutesPerDay
-from .analytics_schema import CommonReadingInfo, PerDateData, PerMonthData
+from .analytics_schema import PerDateData, PerMonthData
 
 
 app = APIRouter(prefix="/analytics", tags=["analytics"])
