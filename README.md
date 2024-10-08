@@ -1,4 +1,4 @@
-##Начало работы
+## Начало работы
 
 Для начала запустите сам backend:
 
@@ -13,7 +13,7 @@ docker-compose up --build
 
 
 ## Исправить
- - favourite and bookmarks delete + post = 1 endpoint
+ - add is_favourite in filter
 
 ## Редачить
  - books/router/reading_books

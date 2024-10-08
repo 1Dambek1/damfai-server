@@ -17,7 +17,7 @@ class RegisterUser(BaseModel):
     
     dob:datetime.date
 
-    password: str | bytes
+    password: str | bytes 
     
     @field_validator("password")
     def check_password(cls, v):
