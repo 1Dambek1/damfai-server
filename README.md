@@ -13,7 +13,7 @@ docker-compose up --build
 
 
 ## Исправить
- - add is_favourite in filter
+ - 
 
 ## Редачить
  - books/router/reading_books
