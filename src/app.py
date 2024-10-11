@@ -10,6 +10,8 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .ranks.ranks_router import app as ranks_app
+
 from .db  import get_session
 from .db import Base, engine
 from .books.books_models import Book, Ganre, Chapter, PageModel
@@ -32,6 +34,7 @@ app.include_router(bookmarks_app)
 app.include_router(analytic_app)
 app.include_router(gigachat_app)
 app.include_router(books_read_app)
+app.include_router(ranks_app)
 
 
 if not os.path.exists("images"):
