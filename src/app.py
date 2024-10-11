@@ -40,6 +40,12 @@ if not os.path.exists("images"):
 if not os.path.exists("images/books_img"):
     os.mkdir("images/books_img")
 
+if not os.path.exists("audios"):
+    os.mkdir("audios")
+
+if not os.path.exists("audios/books"):
+    os.mkdir("audios/books")
+
 
 # CORS
 
