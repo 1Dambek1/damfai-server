@@ -1,4 +1,5 @@
 import json
+import logging
 import pathlib
 from fastapi import APIRouter, Depends, HTTPException
 from ..db import get_session
@@ -25,11 +26,14 @@ async def create_achievements(session:AsyncSession = Depends(get_session)):
 	achievements_data_url = BASE_DIR / 'data' / 'achievements.json'
 	with open(achievements_data_url, "r", encoding='utf-8') as f:
 		achievements = json.load(f)
-	for i in achievements:
-		achievement = Achievement(name=i["name"], description=i["description"])
-		session.add(achievement)
+	objects = [Achievement(**i) for i in achievements]
+	try:
+		session.add_all(objects)
+		await session.commit()
+	except Exception as e:
+		await session.rollback()
+		raise e
 
-	await session.commit()
 
 	return True
 

@@ -122,11 +122,9 @@ async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get
 
 # get pages of chapter with pagintation
 @app.get("/get_pages_by_chapter/{id_chapter}")
-async def get_pages_by_chapter(id_chapter:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)) -> Page[ShowPage] :
-    query1 = (select(PageModel).where(PageModel.chapter_id == id_chapter))
-    result = await session.execute(query1)
-    return paginate(result.scalars().all())
-
+async def get_pages_by_chapter(id_chapter:int, page:int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session))  :
+    page = await session.scalar(select(PageModel).where(PageModel.chapter_id == id_chapter, PageModel.numberOfPage == page))
+    return page
 
 #  ---------------------work with rating--------------s-------
 
