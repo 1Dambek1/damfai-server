@@ -71,7 +71,7 @@ def generate_book(book_id: int, pages_count: int):
     author = soup.find('div', {'class': 'author'}).get_text()
     title = soup.find('h1').get_text()
     print(title)
-    ganre_id  = list(map(int, input().split()))
+    ganre_id  = [1,2,3,5,8,10,16,18]
     book = {
         'desc': '', 
         'author': author,
@@ -97,7 +97,28 @@ data = [
     generate_book(479, 19)
 
 ]
+with open("parse/dataset.json", "w", encoding='utf-8') as f2:
+    json.dump(data, f2)
+    
+    
+    
+from langchain.chat_models.gigachat import GigaChat
+from sentence_transformers import SentenceTransformer
 
-with open("parse/data.json", "w", encoding='utf-8') as f:
-    json.dump(data, f)
+model_for_zip = GigaChat(credentials="NGViMzk4ZGMtNTdhYS00MWU1LTkzM2MtMDlmMGE0NmMyODZkOjFmNDRlMDQyLTI1MDUtNGViZi1hZGVlLWYwZWM2MzgyOGM2MA==", verify_ssl_certs=False, scope="GIGACHAT_API_PERS", streaming=True, model="GigaChat" )
+model = SentenceTransformer('sentence-transformers/paraphrase-xlm-r-multilingual-v1')
+
+new_data = []
+
+for i in data:
+    text  = (model_for_zip.invoke(f"перескажи за 400 слов все произведение '{i["title"]}' писателя {i["author"]}  не должно быть более 400 слов ")).content
+
+    i["zip_text"] = text
+    print(i["title"],i['author'])
+    new_data.append(i)
+    
+with open("parse/new_dataset.json", "w", encoding='utf-8') as f2:
+    json.dump(new_data, f2)
+
+
 

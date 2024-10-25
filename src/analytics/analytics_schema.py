@@ -36,6 +36,3 @@ class PerMonthData(BaseModel):
         November:int
         December:int
 
-#  favourite_janre
-# Zip text webscokets
-#  system of recommendations

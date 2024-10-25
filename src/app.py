@@ -1,44 +1,42 @@
+
 import os
 
 from fastapi import FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-
 # routers
-from .achievements.achievements_router import app as achievements_app
 from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
 from .analytics.analytics_router import app as analytic_app
-from .ai_app.gigachat_router import app as gigachat_app
+# from .ai_app.gigachat_router import app as gigachat_app
 from .books_to_reading.booksRead_router import app as books_read_app
 from .utils.utils_router import app as utils_app
+from .themes.themes_router import app as theme_app
+from .recomendations.recomendations_router import app as recomendation_router
+
 app = FastAPI(title="damfai")
 
 
 # routers 
-
-app.include_router(auth_app)
-app.include_router(books_app)
-app.include_router(bookmarks_app)
-app.include_router(analytic_app)
-app.include_router(gigachat_app)
-app.include_router(books_read_app)
-app.include_router(achievements_app)
 app.include_router(utils_app)
 
+app.include_router(auth_app)
 
-if not os.path.exists("images"):
-    os.mkdir("images")
+app.include_router(books_app)
+app.include_router(bookmarks_app)
+app.include_router(books_read_app)
+app.include_router(recomendation_router)
 
-if not os.path.exists("images/books_img"):
-    os.mkdir("images/books_img")
+# app.include_router(gigachat_app)
 
-if not os.path.exists("audios"):
-    os.mkdir("audios")
+app.include_router(analytic_app)
 
-if not os.path.exists("audios/books"):
-    os.mkdir("audios/books")
+app.include_router(theme_app)
+
+
+
 
 
 # CORS
@@ -56,9 +54,20 @@ app.add_middleware(
 )
 
 
+if not os.path.exists("images"):
+    os.mkdir("images")
 
+if not os.path.exists("images/books_img"):
+    os.mkdir("images/books_img")
+
+if not os.path.exists("audios"):
+    os.mkdir("audios")
+
+if not os.path.exists("audios/books"):
+    os.mkdir("audios/books")
 
 # __________________________________DB(DEBUG)__________________________________
+
 
 
 html = """

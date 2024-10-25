@@ -1,12 +1,12 @@
-import datetime
-from ..db import Base
 
-from ..books.books_models import Book
+import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
+from ..db import Base
 
+from ..books.books_models import Book
 
 class Reading_Book(Base):
     

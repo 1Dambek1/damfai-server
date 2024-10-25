@@ -1,23 +1,21 @@
+
 import datetime
 import logging
-import os
+
 from fastapi import APIRouter, Depends, HTTPException
-import shutil
-from ..config  import config
-import requests
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from .booksRead_models import Reading_Book
+
 from ..get_current_me import get_current_id, get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Book, Chapter, PageModel
 from ..analytics.analytics_models import PagesPerDay
 from fastapi.responses import FileResponse
-
-from  .booksRead_models import Reading_Book
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-
 
 app = APIRouter(prefix="/books-read", tags=["books-read"])
 
@@ -45,7 +43,7 @@ async def get_reading_books(user_id = Depends(get_current_id),me = Depends(get_c
             progress  = 0
             last_reading_page = i.last_reading_page
 
-            if i.is_read == True:
+            if i.is_read:
                 progress = 100
 
             elif last_reading_page == 0:
@@ -62,6 +60,7 @@ async def get_reading_books(user_id = Depends(get_current_id),me = Depends(get_c
                     await session.flush()
             
             data = {
+                "id":i.book.id,
                 "id":i.book.id,
                 "title":i.book.title,
                 "author":i.book.author,
@@ -114,44 +113,6 @@ async def finish_book(book_id:int,user_id = Depends(get_current_id),me = Depends
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
 
 logging.basicConfig(level=logging.ERROR)
-
-@app.get('/speech/{book_id}')
-async def speech(book_id: int, me = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
-    book = await session.scalar(select(Book).where(Book.id == book_id))
-
-    if book:
-        try:
-            url = config.speech_data.SPEECH_URL
-            token = config.speech_data.SPEECH_ACCESS_TOKEN
-            headers = {"Authorization": f"Bearer {token}", 'Content-Type': 'application/ssml'}
-            data = f"Привет, {me.name}!"
-
-            response = requests.post(url, headers=headers, data=data, verify=False)
-            if response.status_code == 200:
-                wav_data = response.content
-
-                file_name = f"book_{book_id}.wav"
-                file_path = os.path.join('audios/books', file_name)
-
-                with open(file_path, "wb") as f:
-                    f.write(wav_data)
-
-                return {"audioUrl": f"{file_path}"}
-                
-            else:
-                logging.error(f"Request failed with status code {response.status_code}")
-                return HTTPException(status_code=400, detail="Bad request failed")
-
-        except requests.exceptions.SSLError as ssl_error:
-            logging.error(f"SSL Error occurred: {ssl_error}")
-        except requests.exceptions.RequestException as req_error:
-            logging.error(f"Request Error: {req_error}")
-        except Exception as e:
-            logging.error(f"An error occurred: {e}")
-
-    
-    raise HTTPException(detail={"detail":"Book is not exists", "status_code":404}, status_code=404)
-
 
 
 

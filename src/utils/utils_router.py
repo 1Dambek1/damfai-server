@@ -1,16 +1,17 @@
 
 import datetime
 import json
-import os
 import pathlib
+import shutil
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..get_current_me import get_current_user
 from ..db import Base, engine, get_session
 from ..books.books_models import Book, Ganre, Chapter, PageModel
-
 
 app = APIRouter(prefix="/utils", tags=["utils"])
 
@@ -65,11 +66,11 @@ async def parse_ganres(session:AsyncSession = Depends(get_session)):
 async def parse_books(session:AsyncSession = Depends(get_session)):
     BASE_DIR  = pathlib.Path(__file__).parent.parent.parent.parent
     num = 0
-    with open(f"{BASE_DIR}app/parse/data.json", "r", encoding='utf-8') as f:
+    with open(f"{BASE_DIR}app/parse/new_dataset.json", "r", encoding='utf-8') as f:
 
         data = json.load(f)
         for i in data:
-            book = Book(title=i["title"], author=i["author"], desc=i["desc"], age_of_book=i["age_of_book"], writen_date = datetime.date(1985, 7, 19))
+            book = Book(zip_text = i["zip_text"],title=i["title"], author=i["author"], desc=i["desc"], age_of_book=i["age_of_book"], writen_date = datetime.date(1985, 7, 19))
             for i2 in i["ganre_id"]:
                 ganre = await session.scalar(select(Ganre).where(Ganre.id == int(i2)))
                 book.ganres.append(ganre)
@@ -91,3 +92,19 @@ async def parse_books(session:AsyncSession = Depends(get_session)):
 
         await session.commit()
         return True
+
+# create img for book
+@app.post("/create/img/{id_book}")
+async def create_img(id_book:int,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    book = await session.scalar(select(Book).where(Book.id == id_book))
+    if book:
+        file_name = str(book.id) + ".jpg"
+        file_path = f"images/books_img/{file_name}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        book.file_path = file.filename
+        session.add(book)
+        await session.commit()
+        await session.refresh(book)
+        return book
+    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)

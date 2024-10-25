@@ -51,9 +51,6 @@ class Config(BaseModel):
 
     auth_data:AuthData = AuthData()
 
-    speech_data:SpeechEnv = SpeechEnv()
-
-    
     
     
     

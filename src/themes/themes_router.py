@@ -1,17 +1,17 @@
+
 import json
 import pathlib
+
 from fastapi import APIRouter, Depends, HTTPException
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
 from ..get_current_me import get_current_admin, get_current_user
 from ..db import get_session
 
 from .themes_models import Theme
 from .themes_schema import CreateTheme, ShowTheme
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-
-
-
 
 app = APIRouter(prefix="/themes", tags=["themes"])
 
