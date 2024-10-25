@@ -16,7 +16,7 @@ from ..db import get_session
 from ..books.books_models import Book,Rating
 
 from .recomendations_utils import find_most_similar
-from .recomendations_schema import ShowRecomendations,ShowBook
+from .recomendations_schema import ShowRecomendations
 
 
 app = APIRouter(prefix="/recomendations", tags=["recomendations"])
@@ -30,7 +30,7 @@ async def you_should_continue(session:AsyncSession = Depends(get_session)):
     return books
                 
 
-@app.get("/get_reccomendation_books", response_model=list[ShowRecomendations])
+@app.get("/get_reccomendation_books")
 async def test2(session:AsyncSession = Depends(get_session), user_id:int = Depends(get_current_id), current_user:User = Depends(get_current_user)):
         select_books = await session.scalars(select(FavouriteUser).where(FavouriteUser.user_id==user_id).options(selectinload(FavouriteUser.book)).order_by(func.random()).limit(10))
         select_books = select_books.all()

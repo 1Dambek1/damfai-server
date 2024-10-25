@@ -26,7 +26,7 @@ def find_most_similar(texts:list[str], candidate_texts:list[Book]):
         for candidate in candidate_texts:
             sum_rating = 0 
             if len(candidate.ratings)>0:
-                for i2 in i.ratings: 
+                for i2 in candidate.ratings: 
                     sum_rating += i2.rating
                 rate = sum_rating/len(candidate.ratings)
             else:
