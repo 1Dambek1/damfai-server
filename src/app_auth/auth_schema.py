@@ -11,6 +11,7 @@ class LoginUser(BaseModel):
     email: EmailStr
     
     password: str   
+    password: str   
     
 class RegisterUser(BaseModel):
         
@@ -21,6 +22,8 @@ class RegisterUser(BaseModel):
     
     dob:datetime.date
 
+
+    role: Role | None
 
     role: Role | None
     password: str | bytes 
@@ -34,6 +37,7 @@ class RegisterUser(BaseModel):
 class ShowUser(BaseModel):
     
     id:int
+    role: Role
     role: Role
     name:str
     surname:str
@@ -49,6 +53,7 @@ class ShowUserWithToken(BaseModel):
     email: EmailStr
     name:str
     surname:str
+    
     
     dob:datetime.date
 

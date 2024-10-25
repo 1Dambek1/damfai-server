@@ -36,6 +36,12 @@ class TgBotEnv(BaseSettings):
     SITE_URL:str
     DATABASE_URL:str
 
+class SpeechEnv(BaseSettings):
+    # Speech 
+    SPEECH_SCOPE: str
+    SPEECH_AUTH_KEY: str
+    SPEECH_ACCESS_TOKEN: str
+    SPEECH_URL: str
 
 class Config(BaseModel):
     

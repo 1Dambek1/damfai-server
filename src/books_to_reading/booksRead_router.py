@@ -15,6 +15,7 @@ from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Book, Chapter, PageModel
 from ..analytics.analytics_models import PagesPerDay
+from fastapi.responses import FileResponse
 
 app = APIRouter(prefix="/books-read", tags=["books-read"])
 
@@ -59,6 +60,7 @@ async def get_reading_books(user_id = Depends(get_current_id),me = Depends(get_c
                     await session.flush()
             
             data = {
+                "id":i.book.id,
                 "id":i.book.id,
                 "title":i.book.title,
                 "author":i.book.author,

@@ -42,6 +42,8 @@ class User(Base):
 
     role:Mapped[Role] = mapped_column(default=Role.user)
 
+    role:Mapped[Role] = mapped_column(default=Role.user)
+
     password:Mapped[bytes]
     email:Mapped[str] = mapped_column(unique=True)
 
@@ -52,6 +54,7 @@ class User(Base):
     
     created_at:Mapped[created_at]
 
+    words_per_minute:Mapped[str] = mapped_column(default=json.dumps([120]))
     words_per_minute:Mapped[str] = mapped_column(default=json.dumps([120]))
 
     favourite_books:Mapped[list["Book"]] = relationship(back_populates="favourite_for_users", uselist=True, secondary="favourite_user_table")
