@@ -1,11 +1,11 @@
 import datetime
-from ..db import Base
-
-from ..app_auth.auth_models import User
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
+from ..db import Base
+
+from ..app_auth.auth_models import User
 class PagesPerDay(Base):
 
     __tablename__ = "pages_per_day_table"

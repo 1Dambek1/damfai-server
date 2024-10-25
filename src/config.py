@@ -45,8 +45,6 @@ class Config(BaseModel):
 
     auth_data:AuthData = AuthData()
 
-    tg_bot_data:TgBotEnv = TgBotEnv()
-    
     
     
     

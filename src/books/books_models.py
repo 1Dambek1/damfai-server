@@ -1,13 +1,14 @@
+    
 import datetime
-from typing import  TYPE_CHECKING
 import uuid
-from sqlalchemy.orm  import Mapped, mapped_column, relationship, DeclarativeBase
+from sqlalchemy.orm  import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
+from typing import  TYPE_CHECKING
 
 from ..db import Base
+
 if TYPE_CHECKING:
     from ..app_auth.auth_models import User
-
 
 class Rating(Base):
     __tablename__ = "rating_table"
@@ -36,10 +37,11 @@ class Book(Base):
     desc:Mapped[str]
     writen_date:Mapped[datetime.date] = mapped_column(nullable=True)
     age_of_book:Mapped[int] = mapped_column(nullable=True)
+    
+    zip_text:Mapped[str]
 
     chapters:Mapped[list["Chapter"]] = relationship(back_populates="book", uselist=True)
 
-    # embadings:Mapped[str]
 
     ganres:Mapped[list["Ganre"]] = relationship(back_populates="books", uselist=True, secondary="ganre_book_table")
 
@@ -47,7 +49,6 @@ class Book(Base):
 
     favourite_for_users:Mapped[list["User"]] = relationship(back_populates="favourite_books", uselist=True, secondary="favourite_user_table")
 
-    # emabings:Mapped[list[float]] = [1, -10, 12 , 14, 18]
 
 
 class Chapter(Base):
@@ -63,6 +64,7 @@ class Chapter(Base):
     book:Mapped["Book"] = relationship(uselist=False, back_populates="chapters")
 
     pages:Mapped[list["PageModel"]] = relationship(back_populates="chapter", uselist=True)
+
 
 class PageModel(Base):
     

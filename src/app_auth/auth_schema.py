@@ -1,12 +1,16 @@
+
 import datetime
 from pydantic import BaseModel, EmailStr, field_validator
 
+from .auth_models import Role
+
+from ..themes.themes_schema import ShowTheme
 
 class LoginUser(BaseModel):
     
     email: EmailStr
     
-    password: str
+    password: str   
     
 class RegisterUser(BaseModel):
         
@@ -17,6 +21,8 @@ class RegisterUser(BaseModel):
     
     dob:datetime.date
 
+
+    role: Role | None
     password: str | bytes 
     
     @field_validator("password")
@@ -28,16 +34,14 @@ class RegisterUser(BaseModel):
 class ShowUser(BaseModel):
     
     id:int
-    
+    role: Role
     name:str
     surname:str
     email: EmailStr
     
     created_at:datetime.datetime
-
+    themes: list[ShowTheme]
     dob:datetime.date
-
-
 
 class ShowUserWithToken(BaseModel):
     
@@ -45,13 +49,10 @@ class ShowUserWithToken(BaseModel):
     email: EmailStr
     name:str
     surname:str
-        
+    
     dob:datetime.date
 
     token:str
-
-
-
 
 class UpdateUser(BaseModel):
 

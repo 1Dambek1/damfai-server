@@ -1,18 +1,20 @@
+
 import datetime
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from .booksRead_models import Reading_Book
 
 from ..get_current_me import get_current_id, get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Book, Chapter, PageModel
 from ..analytics.analytics_models import PagesPerDay
-
-from  .booksRead_models import Reading_Book
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-
 
 app = APIRouter(prefix="/books-read", tags=["books-read"])
 
@@ -40,7 +42,7 @@ async def get_reading_books(user_id = Depends(get_current_id),me = Depends(get_c
             progress  = 0
             last_reading_page = i.last_reading_page
 
-            if i.is_read == True:
+            if i.is_read:
                 progress = 100
 
             elif last_reading_page == 0:
@@ -57,7 +59,7 @@ async def get_reading_books(user_id = Depends(get_current_id),me = Depends(get_c
                     await session.flush()
             
             data = {
-                "book_id":i.book.id,
+                "id":i.book.id,
                 "title":i.book.title,
                 "author":i.book.author,
                 "writen_date":i.book.writen_date,
@@ -107,4 +109,8 @@ async def finish_book(book_id:int,user_id = Depends(get_current_id),me = Depends
         return True
     
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
+
+logging.basicConfig(level=logging.ERROR)
+
+
 
