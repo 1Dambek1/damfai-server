@@ -10,6 +10,7 @@ from .app_auth.auth_router import app as auth_app
 from .books.books_router import app as books_app
 from .bookmarks.bookmarks_router import app as bookmarks_app
 from .analytics.analytics_router import app as analytic_app
+from .extensions.extensions_router import app as extensions_app
 # from .ai_app.gigachat_router import app as gigachat_app
 from .books_to_reading.booksRead_router import app as books_read_app
 from .utils.utils_router import app as utils_app
@@ -34,7 +35,7 @@ app.include_router(recomendation_router)
 app.include_router(analytic_app)
 
 app.include_router(theme_app)
-
+app.include_router(extensions_app)
 
 
 

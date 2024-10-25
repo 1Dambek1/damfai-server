@@ -18,10 +18,10 @@ app = APIRouter(prefix="/utils", tags=["utils"])
 async def create_db():
     
     async with engine.begin() as conn:
-        try:
-            await conn.run_sync(Base.metadata.drop_all)
-        except:
-            pass
+        # try:
+        #     await conn.run_sync(Base.metadata.drop_all)
+        # except:
+        #     pass
         await  conn.run_sync(Base.metadata.create_all)
 
         

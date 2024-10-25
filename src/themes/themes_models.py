@@ -21,6 +21,7 @@ class Theme(Base):
   primaryColor: Mapped[str] 
   primaryTextColor: Mapped[str]
   price: Mapped[float] = mapped_column(nullable=True, default=True)
+  key:Mapped[str]
 
   users: Mapped[list["User"]] = relationship(
         back_populates="themes",  
