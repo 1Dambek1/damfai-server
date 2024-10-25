@@ -49,3 +49,5 @@ class User(Base):
 
     pages_per_day:Mapped[list["PagesPerDay"]] = relationship(back_populates="user", uselist=True)
     minutes_per_day:Mapped[list["MinutesPerDay"]] = relationship(back_populates="user", uselist=True)
+
+    
