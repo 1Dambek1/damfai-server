@@ -16,6 +16,7 @@ if typing.TYPE_CHECKING:
     from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
     from ..books.books_models import Book, PageModel
     from ..themes.themes_models import Theme
+    from ..extensions.extensions_models import Extension
  
 
 class Role(Enum):
@@ -64,12 +65,15 @@ class User(Base):
         uselist=True,
         secondary="theme_user_table"
     )
+    extensions: Mapped[list["Extension"]] = relationship(
+        back_populates="users",
+        uselist=True,
+        secondary="extension_user_table"
+    )
     reading_books:Mapped[list["Book"]] = relationship(uselist=True, secondary="reading_book_table")
 
 
     pages_per_day:Mapped[list["PagesPerDay"]] = relationship(back_populates="user", uselist=True)
     minutes_per_day:Mapped[list["MinutesPerDay"]] = relationship(back_populates="user", uselist=True)
-    
-    
-    # target_in_books:Mapped[int] = mapped_column(default=0)
-    
+
+    balance: Mapped[float] = mapped_column(default=0)

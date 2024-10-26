@@ -44,7 +44,6 @@ class ShowUser(BaseModel):
     email: EmailStr
     
     created_at:datetime.datetime
-    themes: list[ShowTheme]
     dob:datetime.date
 
 class ShowUserWithToken(BaseModel):

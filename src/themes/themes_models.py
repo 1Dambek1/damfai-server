@@ -5,6 +5,8 @@ from sqlalchemy.orm import  Mapped, mapped_column, relationship
 from typing import  TYPE_CHECKING
 
 from ..db import Base
+if TYPE_CHECKING:
+    from ..app_auth.auth_models import User
 
 if TYPE_CHECKING:
     from ..app_auth.auth_models import User
@@ -19,6 +21,7 @@ class Theme(Base):
   primaryColor: Mapped[str] 
   primaryTextColor: Mapped[str]
   price: Mapped[float] = mapped_column(nullable=True, default=True)
+  key:Mapped[str]
 
   users: Mapped[list["User"]] = relationship(
         back_populates="themes",  

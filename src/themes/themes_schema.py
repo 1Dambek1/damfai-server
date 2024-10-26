@@ -10,6 +10,7 @@ class ShowTheme(BaseModel):
   primaryColor: str 
   primaryTextColor: str
   price: float | None
+  key: str
 
 class CreateTheme(BaseModel):
   name: str
@@ -19,3 +20,4 @@ class CreateTheme(BaseModel):
   primaryColor: str 
   primaryTextColor: str
   price: float | None
+  key: str
