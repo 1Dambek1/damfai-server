@@ -15,3 +15,5 @@ class ShowBook(BaseModel):
     chapters:  int |  None
     ratings: float |  None
     ganres: list[str] 
+    
+

@@ -21,15 +21,20 @@ app = APIRouter(prefix="/books", tags=["books"])
 # get book by id(redact)
 @app.get("/get/book/{id_book}", response_model=ShowBook)
 async def get_book(id_book:int, session:AsyncSession = Depends(get_session)):
-    books_query = select(Book,func.avg(Rating.rating), func.count(Chapter.id)).join(Rating, isouter=True).join(Chapter, isouter=True).options(selectinload(Book.ganres)).where(Book.id == id_book).group_by(Book.id)
+    books_query = (select(Book,func.coalesce(func.avg(Rating.rating), 0).label("average_rating"),func.count(Chapter.id).label("chapters"))
+                   .join(Rating, isouter=True)
+                   .join(Chapter, isouter=True)
+                   .options(selectinload(Book.ganres))
+                   .where(Book.id == id_book)
+                   .group_by(Book.id))
     result = await session.execute(books_query)
     result = result.one_or_none()
     if result:
-        book, avg_rating, count_chapter = result
+        book, average_rating, chapters = result
         book = book.__dict__
         book["ganres"] = [ganre.ganre for ganre in book["ganres"]]
-        book["ratings"] = avg_rating
-        book["chapters"] = count_chapter
+        book["ratings"] = average_rating
+        book["chapters"] = chapters
         return book
     raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 

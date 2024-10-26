@@ -40,7 +40,7 @@ def find_most_similar(texts:list[str], candidate_texts:list[Book]):
                     "age_of_book":candidate.age_of_book,
                     "similarity":0,
                     "ganres":[i.ganre for i in candidate.ganres],
-                    "rating":rate}
+                    "ratings":rate}
             candidate_embedding = get_mean_embedings(candidate.zip_text)
             similarity = F.cosine_similarity(average_embedding, candidate_embedding)
             if similarity.item() > 0.7:

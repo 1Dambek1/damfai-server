@@ -11,18 +11,5 @@ class ShowRecomendations(BaseModel):
     age_of_book:Optional[int] | None
     similarity:float
     ganres:list[str]
-    rating:float
-
-class ShowBook(BaseModel):
-    
-    id:int
-    title:str
-    author:str
-    desc:Optional[str] = None
-    writen_date:Optional[datetime.date] = None
-    age_of_book:Optional[int] | None
-
-    chapters:  int |  None
-    ratings: float |   None
-    ganres: list[str] |  None 
+    ratings:float
 
