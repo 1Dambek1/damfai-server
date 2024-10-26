@@ -1,6 +1,5 @@
 [
 	{
-		"id": 1,
 		"name": "Изумрудная тема",
 		"description": "Изумрудная тема в зеленых цветах",
 		"backgroundColor": "#ffffff",
@@ -11,7 +10,6 @@
 		"key": "emerald"
 	},
 	{
-		"id": 2,
 		"name": "Рубиновая тема",
 		"description": "Рубиновая тема в красных цветах",
 		"backgroundColor": "#ffffff",

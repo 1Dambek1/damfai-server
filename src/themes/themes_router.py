@@ -1,14 +1,15 @@
 
 import json
 import pathlib
-
+from sqlalchemy.orm import selectinload
 from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from ..get_current_me import get_current_admin, get_current_user
+from ..get_current_me import get_current_admin, get_current_user, get_current_id
 from ..db import get_session
+from ..app_auth.auth_models import User
 
 from .themes_models import Theme
 from .themes_schema import CreateTheme, ShowTheme
@@ -47,31 +48,42 @@ async def create_theme(data: CreateTheme, _ = Depends(get_current_admin), sessio
 	await session.refresh(theme)
 	return theme
 
+
 @app.get('/user/themes', response_model=list[ShowTheme])
-async def get_themes_by_user(session: AsyncSession = Depends(get_session), user = Depends(get_current_user)): 
+async def get_themes_by_user(user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
+	user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.themes)))
 	return user.themes
 
 @app.get('/add/user/themes/{theme_id}', response_model=ShowTheme)
-async def add_theme_to_user(theme_id: int, user = Depends(get_current_user), session: AsyncSession = Depends(get_session)): 
-    # Асинхронный запрос для поиска темы по её ID
+async def add_theme_to_user(theme_id: int, user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
+
+	theme = await session.scalar(select(Theme).where(Theme.id == theme_id))
+	user: User = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.themes)))
+
+	
+	if not theme:
+		raise HTTPException(status_code=404, detail="Theme not found")
+	if theme not in user.themes:
+		user['balance'] = user.balance - theme.price
+		user.themes.append(theme)
+	await session.commit()
+	await session.refresh(user)
+	return theme
+
+@app.delete('/remove/user/themes/{theme_id}')
+async def remove_theme_from_user(theme_id: int, user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
     theme = await session.scalar(select(Theme).where(Theme.id == theme_id))
+	
+    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.themes)))
     
-    # Если тема не найдена, возвращаем ошибку
     if not theme:
-        raise HTTPException(status_code=404, detail="Theme not found")
-    
-    # Добавляем тему к пользователю, если её еще нет
-    if theme not in user.themes:
-        user.themes.append(theme)
-
-    # Сохраняем изменения в базе данных
+        raise HTTPException(status_code=404, detail="theme not found")
+    if theme in user.themes:
+        user.themes.remove(theme)
     await session.commit()
-
-    # Обновляем данные пользователя
     await session.refresh(user)
 
-    return theme
-
+    return True
 
 
 @app.get('/{theme_id}', response_model=ShowTheme)
