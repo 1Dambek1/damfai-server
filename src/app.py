@@ -14,7 +14,7 @@ from .analytics.analytics_router import app as analytic_app
 from .books_to_reading.booksRead_router import app as books_read_app
 from .utils.utils_router import app as utils_app
 from .themes.themes_router import app as theme_app
-from .recomendations.recomendations_router import app as recomendation_router
+# from .recomendations.recomendations_router import app as recomendation_router
 
 app = FastAPI(title="damfai")
 
@@ -27,7 +27,7 @@ app.include_router(auth_app)
 app.include_router(books_app)
 app.include_router(bookmarks_app)
 app.include_router(books_read_app)
-app.include_router(recomendation_router)
+# app.include_router(recomendation_router)
 
 # app.include_router(gigachat_app)
 
