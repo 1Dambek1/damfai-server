@@ -11,21 +11,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..get_current_me import get_current_user
 from ..db import Base, engine, get_session
-from ..books.books_models import Book, Ganre, Chapter, PageModel
+from ..books.books_models import Book, Ganre, Chapter, PageModel, Authors
 
 app = APIRouter(prefix="/utils", tags=["utils"])
 
 async def create_db():
     
     async with engine.begin() as conn:
-        # try:
-        #     await conn.run_sync(Base.metadata.drop_all)
-        # except:
-        #     pass
+        try:
+            await conn.run_sync(Base.metadata.drop_all)
+        except:
+            pass
         await  conn.run_sync(Base.metadata.create_all)
 
         
-@app.get("/create_db")
+@app.get("/create_db", description="debug")
 async def db():
     await create_db()
     return True
@@ -51,7 +51,7 @@ ganres = ["Роман",
 
           ]
 
-@app.get("/parse/ganres")
+@app.get("/parse/ganres", description="debug")
 async def parse_ganres(session:AsyncSession = Depends(get_session)):
     for i in ganres:
         ganre = Ganre(ganre=i)
@@ -62,7 +62,7 @@ async def parse_ganres(session:AsyncSession = Depends(get_session)):
 
 
 
-@app.get("/parse/books")
+@app.get("/parse/books", description="debug")
 async def parse_books(session:AsyncSession = Depends(get_session)):
     BASE_DIR  = pathlib.Path(__file__).parent.parent.parent.parent
     num = 0
@@ -70,7 +70,13 @@ async def parse_books(session:AsyncSession = Depends(get_session)):
 
         data = json.load(f)
         for i in data:
-            book = Book(zip_text = i["zip_text"],title=i["title"], author=i["author"], desc=i["desc"], age_of_book=i["age_of_book"], writen_date = datetime.date(1985, 7, 19))
+            author = await session.scalar(select(Authors).where(Authors.author == i["author"]))
+            if not author:    
+                author = Authors(author=i["author"])
+                session.add(author)
+                await session.flush()
+                
+            book = Book(zip_text = i["zip_text"],title=i["title"], author=author.author, desc=i["desc"], age_of_book=i["age_of_book"], writen_date = datetime.date(1985, 7, 19))
             for i2 in i["ganre_id"]:
                 ganre = await session.scalar(select(Ganre).where(Ganre.id == int(i2)))
                 book.ganres.append(ganre)
@@ -94,7 +100,7 @@ async def parse_books(session:AsyncSession = Depends(get_session)):
         return True
 
 # create img for book
-@app.post("/create/img/{id_book}")
+@app.post("/create/img/{id_book}", description="debug")
 async def create_img(id_book:int,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     book = await session.scalar(select(Book).where(Book.id == id_book))
     if book:

@@ -22,10 +22,6 @@ class RegisterUser(BaseModel):
     
     dob:datetime.date
 
-
-    role: Role | None
-
-    role: Role | None
     password: str | bytes 
     
     @field_validator("password")
@@ -45,6 +41,7 @@ class ShowUser(BaseModel):
     
     created_at:datetime.datetime
     dob:datetime.date
+    themes: list[ShowTheme]
 
 class ShowUserWithToken(BaseModel):
     

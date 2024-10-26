@@ -12,7 +12,7 @@ from .bookmarks.bookmarks_router import app as bookmarks_app
 from .analytics.analytics_router import app as analytic_app
 from .extensions.extensions_router import app as extensions_app
 # from .ai_app.gigachat_router import app as gigachat_app
-from .books_to_reading.booksRead_router import app as books_read_app
+from .reading_books.booksRead_router import app as books_read_app
 from .utils.utils_router import app as utils_app
 from .themes.themes_router import app as theme_app
 # from .recomendations.recomendations_router import app as recomendation_router
@@ -66,47 +66,3 @@ if not os.path.exists("audios"):
 
 if not os.path.exists("audios/books"):
     os.mkdir("audios/books")
-
-# __________________________________DB(DEBUG)__________________________________
-
-
-
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
-        </form>
-        <ul id='messages'>
-        </ul>
-        <script>
-            var ws = new WebSocket("ws://localhost:8000/gigachat/ws/generate_questions/1");
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        </script>
-    </body>
-</html>
-"""
-
-
-@app.get("/")
-async def get():
-    return HTMLResponse(html)
-

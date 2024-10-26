@@ -8,15 +8,16 @@ from ..db import Base
 if TYPE_CHECKING:
     from ..app_auth.auth_models import User
 
-if TYPE_CHECKING:
-    from ..app_auth.auth_models import User
     
 class Extension(Base):
   __tablename__ = "extension_table"
+  
   id: Mapped[int] = mapped_column(primary_key=True)
-  slug: Mapped[str]
-  description: Mapped[str]  
+
   title: Mapped[str]
+  description: Mapped[str]    
+  slug: Mapped[str]
+  
   users: Mapped[list["User"]] = relationship(
         back_populates="extensions",  
         uselist=True,
