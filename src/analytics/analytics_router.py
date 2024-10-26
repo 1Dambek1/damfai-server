@@ -76,4 +76,4 @@ async def get_books_last_12_months(me:User = Depends(get_current_user),session:A
 
 @app.get("/favourite_ganres")
 async def favourite_ganres(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    return get_favourite_ganres_func(user_id, session)
+    return await get_favourite_ganres_func(user_id, session)

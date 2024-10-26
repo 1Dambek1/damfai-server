@@ -8,8 +8,6 @@ from ..db import Base
 if TYPE_CHECKING:
     from ..app_auth.auth_models import User
 
-if TYPE_CHECKING:
-    from ..app_auth.auth_models import User
     
 class Theme(Base):
   __tablename__ = "theme_table"
@@ -20,7 +18,7 @@ class Theme(Base):
   textColor: Mapped[str] 
   primaryColor: Mapped[str] 
   primaryTextColor: Mapped[str]
-  price: Mapped[float] = mapped_column(nullable=True, default=True)
+  price: Mapped[float] = mapped_column(nullable=True, default=0)
   key:Mapped[str]
 
   users: Mapped[list["User"]] = relationship(
