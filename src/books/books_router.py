@@ -59,7 +59,7 @@ async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get
     if not book:
         raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
     
-    query = select(Chapter,func.count(PageModel.id)).join(PageModel, isouter=True).where(Chapter.book_id == id_book).group_by(Chapter.id)
+    query = select(Chapter,func.count(PageModel.id),func.max(PageModel.numberOfPage)).join(PageModel, isouter=True).where(Chapter.book_id == id_book).group_by(Chapter.id)
     
     result = await session.execute(query)
     result = result.all()
@@ -71,7 +71,9 @@ async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get
                 "chapters":[{"id":chapter.id,
                              "title":chapter.title,
                              "numberOfChapter":chapter.numberOfChapter,
-                             "pages":count_page} for chapter, count_page in result]}
+                             "pages":count_page,
+                             'lastNumberOfPage': last_page_number if last_page_number else None
+                             } for chapter, count_page, last_page_number in result]}
     raise HTTPException(detail={"detail":"Chapters is not exist", "status_code":400}, status_code=400)
 
 

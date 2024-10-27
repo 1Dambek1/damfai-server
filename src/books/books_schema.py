@@ -21,6 +21,7 @@ class ShowChapter(BaseModel):
     title:Optional[str] = None
     numberOfChapter:int
     pages: int |  None 
+    lastNumberOfPage: int |  None
 
 class ShowBookWithChapters(BaseModel):
     
