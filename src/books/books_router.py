@@ -52,7 +52,6 @@ async def get_image_book(id_book:int, session:AsyncSession = Depends(get_session
     raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
 
-
 # get chapter of book by id(redact)
 @app.get("/get/book/chapters/{id_book}", response_model=ShowBookWithChapters)
 async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get_session)):
