@@ -18,7 +18,6 @@ from .themes.themes_router import app as theme_app
 # from .search_book.recomendations_router import app as recomendation_router
 app = FastAPI(title="damfai")
 
-
 # routers 
 app.include_router(utils_app)
 
@@ -54,11 +53,11 @@ app.add_middleware(
 )
 
 
-if not os.path.exists("images"):
-    os.mkdir("images")
+if not os.path.exists("src/images"):
+    os.mkdir("src/images")
 
-if not os.path.exists("images/books_img"):
-    os.mkdir("images/books_img")
+if not os.path.exists("src/images/books_img"):
+    os.mkdir("src/images/books_img")
 
 if not os.path.exists("audios"):
     os.mkdir("audios")

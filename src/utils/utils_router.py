@@ -2,14 +2,12 @@
 import datetime
 import json
 import pathlib
-import shutil
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..get_current_me import get_current_user
 from ..db import Base, engine, get_session
 from ..books.books_models import Book, Ganre, Chapter, PageModel, Authors
 
@@ -99,18 +97,3 @@ async def parse_books(session:AsyncSession = Depends(get_session)):
         await session.commit()
         return True
 
-# create img for book
-@app.post("/create/img/{id_book}", description="debug")
-async def create_img(id_book:int,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    book = await session.scalar(select(Book).where(Book.id == id_book))
-    if book:
-        file_name = str(book.id) + ".jpg"
-        file_path = f"images/books_img/{file_name}"
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        book.file_path = file.filename
-        session.add(book)
-        await session.commit()
-        await session.refresh(book)
-        return book
-    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)

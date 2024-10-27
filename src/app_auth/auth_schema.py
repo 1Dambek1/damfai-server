@@ -65,4 +65,8 @@ class UpdateUser(BaseModel):
 
     password:str | bytes | None
     
-    
+    @field_validator("password")
+    def check_password(cls, v):
+        if len(v) < 8:
+            raise ValueError("password must be at least 8 characters")
+        return v

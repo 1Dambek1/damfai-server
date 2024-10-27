@@ -1,10 +1,12 @@
 
+import shutil
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 
@@ -45,7 +47,7 @@ async def get_image_book(id_book:int, session:AsyncSession = Depends(get_session
     book = await session.scalar(select(Book).where(Book.id == id_book))
     if book:
         if book.file_path:
-            return FileResponse(f"images/books_img/{book.file_path}")
+            return FileResponse(f"src/images/books_img/{book.file_path}")
         raise HTTPException(detail={"detail":"Book do not have image", "status_code":400}, status_code=400)
     raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
@@ -112,3 +114,21 @@ async def ganres(session:AsyncSession = Depends(get_session)):
     return ganres.all()
 
 
+
+
+
+# create img for book
+@app.post("/create/img/{id_book}", description="debug")
+async def create_img(id_book:int,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    book = await session.scalar(select(Book).where(Book.id == id_book))
+    if book:
+        file_name = str(book.id) + ".jpg"
+        file_path = f"src/images/books_img/{file_name}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        book.file_path = file_name
+        session.add(book)
+        await session.commit()
+        await session.refresh(book)
+        return book
+    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
