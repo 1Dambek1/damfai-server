@@ -41,6 +41,8 @@ async def main(id_book:int, session:AsyncSession = Depends(get_session)):
             return FileResponse(f"images/books_img/{book.file_path}")
     raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
+
+
 # get filter books with pagintation
 @app.post("")
 async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
