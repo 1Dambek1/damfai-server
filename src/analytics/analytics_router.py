@@ -10,7 +10,15 @@ from sqlalchemy.orm import selectinload
 
 from .analytics_models import  MinutesPerDay
 from .analytics_schema import PerDateData, PerMonthData
-from .get_statistics import get_common_statistics_func, get_pages_last_7_days_func,get_minutes_last_7_days_func, get_books_last_12_months_func, get_favourite_ganres_func
+from .get_statistics import (
+get_common_statistics_func,
+get_pages_last_7_days_func,
+get_minutes_last_7_days_func,
+get_books_last_12_months_func,
+get_favourite_ganres_func,
+get_predicted_minutes_func,
+get_predicted_pages_func
+)
 
 from ..get_current_me import get_current_user, get_current_id
 from ..db import get_session
@@ -77,3 +85,15 @@ async def get_books_last_12_months(me:User = Depends(get_current_user),session:A
 @app.get("/favourite_ganres")
 async def favourite_ganres(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     return await get_favourite_ganres_func(me, session)
+
+@app.post("/predicted_minutes")
+async def predicted_minutes( me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    data = await get_minutes_last_7_days_func(me, session)
+    dataset = [data["Wednesday"],data["Thursday"],data["Friday"],data["Saturday"],data["Sunday"]]
+    return await get_predicted_minutes_func(me, dataset, session)
+
+@app.post("/predicted_pages")
+async def predicted_pages( me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    data = await get_pages_last_7_days_func(me, session)
+    dataset = [data["Wednesday"],data["Thursday"],data["Friday"],data["Saturday"],data["Sunday"]]
+    return await get_predicted_pages_func(me, dataset, session)

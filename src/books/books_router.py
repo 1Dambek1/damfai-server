@@ -122,6 +122,8 @@ async def ganres(session:AsyncSession = Depends(get_session)):
 async def create_img(id_book:int,file:UploadFile = File(...), me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     book = await session.scalar(select(Book).where(Book.id == id_book))
     if book:
+        if book.file_path:
+            raise HTTPException(detail={"detail":"Book already have image", "status_code":400}, status_code=400)
         file_name = str(book.id) + ".jpg"
         file_path = f"src/images/books_img/{file_name}"
         with open(file_path, "wb") as buffer:
