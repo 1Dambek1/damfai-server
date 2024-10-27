@@ -10,6 +10,9 @@ services:
       - .env
     ports:
       - 8000:8000
+    volumes:
+      - ./src/images:/app/src/images
+
 
   db:
     image: postgres

@@ -28,6 +28,8 @@ class Authors(Base):
     __tablename__ = "authors_table"
     
     author:Mapped[str] = mapped_column(primary_key=True, unique=True)
+    
+    description:Mapped[str] = mapped_column(nullable=True)
 
     books:Mapped["Book"] = relationship(uselist=True)
 

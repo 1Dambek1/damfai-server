@@ -1,3 +1,6 @@
+import joblib
+from pathlib import Path
+import numpy as np
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -124,3 +127,20 @@ async def get_favourite_ganres_func(me:User, session:AsyncSession) -> dict:
     return max(ganres_data, key=ganres_data.get)   
     # sorted_data =  {k: v for k, v in sorted(ganres_data.items(), key=lambda item: item[1])} 
     return ganres_data
+
+
+async def get_predicted_minutes_func(me:User,minutes:list[int], session:AsyncSession) -> dict:
+    BASE_DIR  = Path(__file__).parent.parent.parent
+    model = joblib.load(BASE_DIR / "ai_models" / "minutes" / "model_random_minutes.pkl")
+    
+    minutes = (np.array(minutes)).reshape(1, -1)
+    predicted_minutes = model.predict(minutes)
+    return predicted_minutes[0]
+   
+async def get_predicted_pages_func(me:User,pages:list[int], session:AsyncSession) -> dict:
+    BASE_DIR  = Path(__file__).parent.parent.parent
+    model = joblib.load(BASE_DIR / "ai_models" / "pages" / "model_random_pages.pkl")
+    pages = (np.array(pages)).reshape(1, -1)
+    
+    predicted_pages = model.predict(pages)
+    return predicted_pages[0]
