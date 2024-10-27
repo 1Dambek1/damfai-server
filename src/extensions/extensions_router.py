@@ -15,13 +15,14 @@ from .extensions_schema import CreateExtension, ShowExtension
 
 app = APIRouter(prefix="/extensions", tags=["extensions"])
 
-
+# get all extensions
 @app.get('/all', response_model=list[ShowExtension])
 async def get_extensions(session:AsyncSession = Depends(get_session)):    
 	extensions = await session.scalars(select(Extension))
 	return extensions.all()
 
-@app.post('/create/all')
+# create extensions(DEBUG)
+@app.post('/create/all', description="debug")
 async def create_extensions(session:AsyncSession = Depends(get_session)): 
 	BASE_DIR = pathlib.Path(__file__).resolve().parent.parent .parent
 	ex_data_url = BASE_DIR / 'data' / 'extensions.json'

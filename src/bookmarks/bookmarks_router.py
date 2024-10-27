@@ -8,22 +8,19 @@ from sqlalchemy.orm import selectinload
 from .bookmarks_schema import ShowBookmark, ShowFavourite
 from .bookmarsk_models import BookmarkUser, FavouriteUser
 
-from ..get_current_me import get_current_id, get_current_user
+from ..get_current_me import  get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Chapter, PageModel
 
 app = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 
-#  ---------------------get bookmarks and favourite---------------------
 
 
-
-# get bookmarks
+# get bookmarks(redact+-)
 @app.get("/", response_model=list[ShowBookmark])
-async def get_bookmarks(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.bookmarks_on_page).selectinload(PageModel.chapter).selectinload(Chapter.book)))
-
+async def get_bookmarks(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    user = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.bookmarks_on_page).selectinload(PageModel.chapter).selectinload(Chapter.book)))
     dataset  = []
     for i in user.bookmarks_on_page:
         data = {
@@ -39,56 +36,55 @@ async def get_bookmarks(user_id = Depends(get_current_id),me = Depends(get_curre
         dataset.append(data)
     return dataset
 
-# get favourite
+# get favourite(redact)
 @app.get("/favourite", response_model=list[ShowFavourite])
-async def get_favourite(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    favourite = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books)))
+async def get_favourite(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    favourite = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.favourite_books)))
     return favourite.favourite_books
 
 
-#  ---------------------create bookmarks and favourite---------------------
 
 
-# create favourite
-@app.put("/favourite")
-async def favourite_update(book_id:int,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    favourite = await session.scalar(select(FavouriteUser).where(FavouriteUser.user_id == user_id, FavouriteUser.book_id == book_id))
+# create favourite(redact)
+@app.put("/favourite/{book_id}")
+async def favourite_update(book_id:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    favourite = await session.scalar(select(FavouriteUser).where(FavouriteUser.user_id == me.id, FavouriteUser.book_id == book_id))
     if favourite:
         await session.delete(favourite)
         await session.commit()
         return False
-    favourite = FavouriteUser(book_id=book_id, user_id=user_id)
+    favourite = FavouriteUser(book_id=book_id, user_id=me.id)
     session.add(favourite)
     await session.commit()
     return True
 
-#  create bookmarks
-@app.put("")
-async def bookmarks_update(page_id:int,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    bookmark = await session.scalar(select(BookmarkUser).where(BookmarkUser.user_id == user_id, BookmarkUser.page_id == page_id))
+#  create bookmarks(redact)
+@app.put("/{page_id}")
+async def bookmarks_update(page_id:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    bookmark = await session.scalar(select(BookmarkUser).where(BookmarkUser.user_id == me.id, BookmarkUser.page_id == page_id))
     if bookmark:
         await session.delete(bookmark)
         await session.commit()
         return False
-    bookmark = BookmarkUser(page_id=page_id, user_id=user_id)
+    bookmark = BookmarkUser(page_id=page_id, user_id=me.id)
     session.add(bookmark)
     await session.commit()
     return True
 
 
-#  ---------------------check is bookmark and favourite---------------------
  
- 
+#  check bookmarks(redact)
 @app.get("/is_bookmark/{page_id}")
-async def is_bookmark(page_id:int,user_id:int = Depends(get_current_id), user:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    bookmark = await session.scalar(select(BookmarkUser).where(BookmarkUser.user_id == user_id, BookmarkUser.page_id == page_id))
+async def is_bookmark(page_id:int, me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    bookmark = await session.scalar(select(BookmarkUser).where(BookmarkUser.user_id == me.id, BookmarkUser.page_id == page_id))
     if bookmark:
         return {"is_bookmark":True}
     return {"is_bookmark":False}
-    
+  
+#  check favourite(redact)  
 @app.get("/is_favourite/{book_id}")
-async def is_favourite(book_id:int,user_id:int = Depends(get_current_id), user:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    favourite = await session.scalar(select(FavouriteUser).where(FavouriteUser.user_id == user_id, FavouriteUser.book_id == book_id)) 
+async def is_favourite(book_id:int, me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    favourite = await session.scalar(select(FavouriteUser).where(FavouriteUser.user_id == me.id, FavouriteUser.book_id == book_id)) 
     if favourite:
         return {"is_favourite":True}
     return {"is_favourite":False}

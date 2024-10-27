@@ -25,14 +25,14 @@ app = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
 @app.post("/minutes_per_day/add")
-async def add_minutes_per_day(time_minutes:float,user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.minutes_per_day)))
+async def add_minutes_per_day(time_minutes:float,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    user = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.minutes_per_day)))
     if user:
-        minute = await session.scalar(select(MinutesPerDay).where(MinutesPerDay.date == datetime.datetime.now().date(), MinutesPerDay.user_id == user_id))
+        minute = await session.scalar(select(MinutesPerDay).where(MinutesPerDay.date == datetime.datetime.now().date(), MinutesPerDay.user_id == me.id))
         if minute:
             minute.minutes_count += time_minutes
         else:
-            minute = MinutesPerDay(date=datetime.datetime.now().date(),minutes_count=time_minutes,user_id=user_id)
+            minute = MinutesPerDay(date=datetime.datetime.now().date(),minutes_count=time_minutes,user_id=me.id)
             session.add(minute)
         await session.commit()
         return True
@@ -55,8 +55,8 @@ async def update_sped_words_per_minute(speed:float,me:User = Depends(get_current
 
 # reading common info
 @app.get("/reading_info")
-async def get_reading_info(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.reading_books), selectinload(User.minutes_per_day), selectinload(User.pages_per_day)))
+async def get_reading_info(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    user = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.reading_books), selectinload(User.minutes_per_day), selectinload(User.pages_per_day)))
     return await get_common_statistics_func(user, session)
 
 # get count pages last 7 days
@@ -75,5 +75,5 @@ async def get_books_last_12_months(me:User = Depends(get_current_user),session:A
     return await get_books_last_12_months_func(me, session)
 
 @app.get("/favourite_ganres")
-async def favourite_ganres(user_id = Depends(get_current_id),me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    return await get_favourite_ganres_func(user_id, session)
+async def favourite_ganres(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    return await get_favourite_ganres_func(me, session)

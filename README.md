@@ -24,3 +24,11 @@ docker-compose up --build
  - recommendations
  - embedings
  - elasticsearch
+
+
+
+Redact
+- books
+- app_auth
+- bookmarks
+- analithic

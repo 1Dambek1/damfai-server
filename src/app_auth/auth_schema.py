@@ -22,10 +22,6 @@ class RegisterUser(BaseModel):
     
     dob:datetime.date
 
-
-    role: Role | None
-
-    role: Role | None
     password: str | bytes 
     
     @field_validator("password")
@@ -45,6 +41,7 @@ class ShowUser(BaseModel):
     
     created_at:datetime.datetime
     dob:datetime.date
+    themes: list[ShowTheme]
 
 class ShowUserWithToken(BaseModel):
     
@@ -68,4 +65,8 @@ class UpdateUser(BaseModel):
 
     password:str | bytes | None
     
-    
+    @field_validator("password")
+    def check_password(cls, v):
+        if len(v) < 8:
+            raise ValueError("password must be at least 8 characters")
+        return v

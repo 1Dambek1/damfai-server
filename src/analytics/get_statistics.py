@@ -1,4 +1,5 @@
 
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from calendar import monthrange
@@ -11,7 +12,7 @@ from .date import dates,monthes
 
 from ..app_auth.auth_models import User
 from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
-from ..books_to_reading.booksRead_models import Reading_Book
+from ..reading_books.booksRead_models import Reading_Book
 from ..books.books_models import Ganre,Book
 
 # get common_stats     
@@ -101,21 +102,25 @@ async def get_books_last_12_months_func(me:User, session:AsyncSession) -> dict:
     return dataset
 
 # get_favourite_ganres
-async def get_favourite_ganres_func(user_id:int, session:AsyncSession) -> dict:
+async def get_favourite_ganres_func(me:User, session:AsyncSession) -> dict:
     ganres = await session.scalars(select(Ganre))
-    ganres_data = {}
-    for i in ganres:
-        ganres_data[i.ganre] = 0
+    ganres_data = {i.ganre: 0 for i in ganres}
 
-    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.favourite_books).selectinload(Book.ganres), selectinload(User.reading_books).selectinload(Book.ganres)))
-    for i in user.favourite_books:
-        for i2 in i.ganres:
-            ganres_data[i2.ganre] += 1
+    user = await session.scalar(select(User)
+                                .where(User.id == me.id)
+                                .options(selectinload(User.favourite_books)
+                                         .selectinload(Book.ganres),
+                                         selectinload(User.reading_books)
+                                         .selectinload(Book.ganres)))
 
-    for i in user.reading_books:
-        for i2 in i.ganres:
-            ganres_data[i2.ganre] += 0.5
+    for fav_book in user.favourite_books:
+        for genre in fav_book.ganres:
+            ganres_data[genre.ganre] += 0.98
+
+    for reading_book in user.reading_books:
+        for genre in reading_book.ganres:
+            ganres_data[genre.ganre] += 0.77
     
     return max(ganres_data, key=ganres_data.get)   
     # sorted_data =  {k: v for k, v in sorted(ganres_data.items(), key=lambda item: item[1])} 
-    # return sorted_data
+    return ganres_data
