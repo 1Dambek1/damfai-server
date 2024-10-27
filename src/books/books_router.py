@@ -51,47 +51,6 @@ async def get_image_book(id_book:int, session:AsyncSession = Depends(get_session
         raise HTTPException(detail={"detail":"Book do not have image", "status_code":400}, status_code=400)
     raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
-<<<<<<< HEAD
-
-
-# get filter books with pagintation
-@app.post("")
-async def get_books(ganres:list[int],rating__lte:float = None, rating__gte:float = None,user_filter: Optional[BookFilter] = FilterDepends(BookFilter),session:AsyncSession = Depends(get_session))-> Page[ShowBook] :
-    query1 = user_filter.filter(select(Book).options(selectinload(Book.chapters), selectinload(Book.ratings), selectinload(Book.ganres)))
-    result = await session.execute(query1)
-    result = result.scalars().all()
-    datas = []
-    for i in result:
-            is_good = True  
-            mine_ganres = [i2.id for i2 in i.ganres]                     
-            for i2 in ganres:
-                if i2 not in mine_ganres:
-                       is_good = False
-            if is_good:
-                data = {
-                            "id":i.id,
-                            "title":i.title,
-                            "file_path":i.file_path,
-                            "author":i.author,
-                            "desc":i.desc,
-                            "writen_date":i.writen_date,
-                            "chapters":len(i.chapters),
-                            "ganres":[i.ganre for i in i.ganres],
-                            "age_of_book": i.age_of_book,
-                            "zip_text":i.zip_text
-                            }
-                # rating
-                sum_rating = 0 
-                if len(i.ratings)>0:
-                    for i2 in i.ratings: 
-                        sum_rating += i2.rating
-                    rate = sum_rating/len(i.ratings)
-                    data["ratings"] = rate
-                else:
-                    rate = 0
-                    data["ratings"] = rate
-=======
->>>>>>> c380376b22a1c21d3d236390532a70d799a56e15
 
 # get chapter of book by id(redact)
 @app.get("/get/book/chapters/{id_book}", response_model=ShowBookWithChapters)
