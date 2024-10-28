@@ -5,19 +5,15 @@ class ShowTheme(BaseModel):
   id: int
   name: str
   description: str
-  backgroundColor: str 
-  textColor: str 
-  primaryColor: str 
-  primaryTextColor: str
+  light: dict
+  dark: dict
   price: float | None
   key: str
 
 class CreateTheme(BaseModel):
   name: str
   description: str
-  backgroundColor: str 
-  textColor: str 
-  primaryColor: str 
-  primaryTextColor: str
+  light: dict
+  dark: dict
   price: float | None
   key: str

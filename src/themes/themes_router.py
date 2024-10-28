@@ -20,22 +20,25 @@ app = APIRouter(prefix="/themes", tags=["themes"])
 @app.get('/all', response_model=list[ShowTheme])
 async def get_themes(session:AsyncSession = Depends(get_session)):    
 	themes = await session.scalars(select(Theme))
+
 	return themes.all()
 
 @app.post('/create/all')
 async def create_themes(session:AsyncSession = Depends(get_session)): 
-	BASE_DIR = pathlib.Path(__file__).resolve().parent.parent .parent
+	BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 	themes_data_url = BASE_DIR / 'data' / 'themes.json'
+	
 	with open(themes_data_url, "r", encoding='utf-8') as f:
-		themes = json.load(f)
+		themes = json.load(f)	
+
 	objects = [Theme(**i) for i in themes]
+
 	try:
 		session.add_all(objects)
 		await session.commit()
 	except Exception as e:
 		await session.rollback()
 		raise e
-
 
 	return True
 
@@ -87,7 +90,6 @@ async def remove_theme_from_user(theme_id: int, user_id = Depends(get_current_id
 		return True
 
 @app.get('/balance_increase')
-
 async def balance_increase(balance: int, user_id = Depends(get_current_id),session:AsyncSession = Depends(get_session)):
 	user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.themes)))
 	if user:
