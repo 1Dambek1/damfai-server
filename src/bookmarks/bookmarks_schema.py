@@ -12,6 +12,7 @@ class ShowBookmark(BaseModel):
 
     id_current_chapter: int
     current_page: int  
+    current_number_of_page: int
 
 
 class ShowFavourite(BaseModel):
