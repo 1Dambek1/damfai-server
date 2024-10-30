@@ -48,7 +48,7 @@ class User(Base):
     name:Mapped[str]
     surname:Mapped[str]
     dob:Mapped[datetime.date]
-    balance: Mapped[float] = mapped_column(default=0)
+    balance: Mapped[int] = mapped_column(default=0)
     target_of_books:Mapped[int] = mapped_column(nullable=True)
     target_of_data:Mapped[datetime.date] = mapped_column(nullable=True)
     

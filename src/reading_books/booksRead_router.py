@@ -105,6 +105,7 @@ async def read_page(page_id:int,book_id:int,time_minutes:float,me = Depends(get_
                 reading_book.last_reading_page = reading_page.numberOfPage
                 await session.commit()
                 return {"status_code":200, "detail":"Page is read"}
+            await session.commit()
             return {"status_code":200, "detail":"You still read this book"}
         raise HTTPException(detail={"detail":"Page is not exist", "status_code":400}, status_code=400)
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)

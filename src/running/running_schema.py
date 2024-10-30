@@ -13,7 +13,6 @@ class PrizeSchema(BaseModel):
 
 class WinnerSchema(BaseModel):
     
-    points:int
     prize:PrizeSchema
     user: ShowUser
     
@@ -28,6 +27,17 @@ class RunningSchema(BaseModel):
     Status: Status
 
 
-    winners:list[WinnerSchema]
-    prizes:list[PrizeSchema]
+    winners:list[WinnerSchema] | None
+    prizes:list[PrizeSchema] | None
 
+
+class RankedUser(BaseModel):
+    id:int
+    name: str
+    surname: str
+    running_points: int
+    rank: int
+    
+class RankingSchema(BaseModel):
+    top_100_users:list[RankedUser]
+    your_rank:RankedUser

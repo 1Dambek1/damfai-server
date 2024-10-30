@@ -42,14 +42,6 @@ app.include_router(shop_app)
 app.include_router(running_app)
 
 
-
-# scheduler
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from .running.running_utils import update_running_status
-scheduler = AsyncIOScheduler()
-scheduler.add_job(update_running_status, 'interval', seconds=60, id="update_running_status")
-scheduler.start()
-
 # CORS
 
 origins = [

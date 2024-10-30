@@ -25,8 +25,8 @@ class Running(Base):
   author_name:Mapped[str] = mapped_column(ForeignKey("authors_table.author", ondelete="CASCADE"))
   author:Mapped["Authors"] = relationship(uselist=False)
   
-  start_running_date:Mapped[datetime.date]
-  end_running_date:Mapped[datetime.date]
+  start_running_date:Mapped[datetime.datetime]
+  end_running_date:Mapped[datetime.datetime]
   
   status:Mapped[Status] = mapped_column(default=Status.not_started)
   
@@ -51,7 +51,6 @@ class Winner(Base):
   
   id: Mapped[int] = mapped_column(primary_key=True)
   
-  points:Mapped[int]
   
   prize_id:Mapped[int] = mapped_column(ForeignKey("prize_table.id", ondelete="CASCADE"), unique=True)
   prize:Mapped["Prize"] = relationship(uselist=False)
