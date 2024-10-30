@@ -1,6 +1,5 @@
 import json
 import datetime
-from typing import Annotated
 import uuid
 import typing
 
@@ -25,7 +24,7 @@ class Role(Enum):
     
     
 
-created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('Europe/Moscow', now())"))]
+created_at = typing.Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('Europe/Moscow', now())"))]
 
 
 
@@ -40,6 +39,9 @@ class User(Base):
     role:Mapped[Role] = mapped_column(default=Role.user)
     password:Mapped[bytes]
     created_at:Mapped[created_at]
+    
+    # running
+    running_points:Mapped[int] = mapped_column(default=0)
 
     # user инфа
     email:Mapped[str] = mapped_column(unique=True)

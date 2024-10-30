@@ -4,12 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..db import get_session
+from ..get_current_me import get_current_user
+
 from .auth_schema import RegisterUser, LoginUser, ShowUser, ShowUserWithToken, UpdateUser
 from .auth_utils.utils import decode_password, check_password, create_access_token
-
-from ..db import get_session
 from .auth_models import User
-from ..get_current_me import get_current_user
+
 
 
 

@@ -6,6 +6,8 @@ import bcrypt
 
 from ...config import config
 
+
+#  __________passwords________________
 async def decode_password(password:str) -> bytes:
     
     new_password = bcrypt.hashpw(password=password.encode(), salt = bcrypt.gensalt())
@@ -17,7 +19,7 @@ async def check_password(password:str, old_password:bytes) -> bool:
     return bcrypt.checkpw(password=password.encode(), hashed_password=old_password)
 
 
-# _____________tokens__________________________________
+# _____________tokens__________________
 
 
 async def create_access_token(

@@ -15,7 +15,10 @@ from .extensions.extensions_router import app as extensions_app
 from .reading_books.booksRead_router import app as books_read_app
 from .utils.utils_router import app as utils_app
 from .themes.themes_router import app as theme_app
+from .shop.shop_router import app as shop_app
 # from .search_book.recomendations_router import app as recomendation_router
+from .running.running_router import app as running_app
+
 app = FastAPI(title="damfai")
 
 # routers 
@@ -34,9 +37,18 @@ app.include_router(analytic_app)
 
 app.include_router(theme_app)
 app.include_router(extensions_app)
+app.include_router(shop_app)
+
+app.include_router(running_app)
 
 
 
+# scheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from .running.running_utils import update_running_status
+scheduler = AsyncIOScheduler()
+scheduler.add_job(update_running_status, 'interval', seconds=60, id="update_running_status")
+scheduler.start()
 
 # CORS
 

@@ -43,6 +43,9 @@ class SpeechEnv(BaseSettings):
     SPEECH_ACCESS_TOKEN: str
     SPEECH_URL: str
 
+
+
+
 class Config(BaseModel):
     
     env_data:EnvData = EnvData()
@@ -50,7 +53,7 @@ class Config(BaseModel):
     gigachat_data:EnvGigaChat = EnvGigaChat()
 
     auth_data:AuthData = AuthData()
-
+    
     
     
     
