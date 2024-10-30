@@ -124,5 +124,14 @@ async def finish_book(book_id:int,me = Depends(get_current_user),session:AsyncSe
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
 
 
-
-
+@app.put("/make_target")
+async def make_target(book_id:int,min_days:int = None,max_days:int = None,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
+    if r_book:
+        if min_days:
+            r_book.target_days_min = min_days
+        if min_days:
+            r_book.target_days_max = max_days
+        await session.commit()
+        return True
+    raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)

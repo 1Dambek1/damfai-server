@@ -49,8 +49,7 @@ class User(Base):
     surname:Mapped[str]
     dob:Mapped[datetime.date]
     balance: Mapped[int] = mapped_column(default=0)
-    target_of_books:Mapped[int] = mapped_column(nullable=True)
-    target_of_data:Mapped[datetime.date] = mapped_column(nullable=True)
+    
     
     # analytics data 
     words_per_minute:Mapped[str] = mapped_column(default=json.dumps([120]))
