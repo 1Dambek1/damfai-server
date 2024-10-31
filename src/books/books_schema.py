@@ -1,6 +1,5 @@
 from typing import Optional
 from pydantic import BaseModel
-import datetime
 
 
 class ShowGanres(BaseModel):

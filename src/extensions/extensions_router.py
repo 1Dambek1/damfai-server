@@ -7,9 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from ..get_current_me import get_current_admin, get_current_user, get_current_id
+from ..get_current_me import get_current_admin, get_current_id
 from ..db import get_session
 from ..app_auth.auth_models import User
+
 from .extensions_models import Extension
 from .extensions_schema import CreateExtension, ShowExtension
 

@@ -34,10 +34,12 @@ class ShowUser(BaseModel):
     
     id:int
     role: Role
-    role: Role
     name:str
     surname:str
     email: EmailStr
+    
+    running_points:int
+    balance:float
     
     created_at:datetime.datetime
     dob:datetime.date

@@ -5,13 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from .bookmarks_schema import ShowBookmark, ShowFavourite
-from .bookmarsk_models import BookmarkUser, FavouriteUser
-
 from ..get_current_me import  get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Chapter, PageModel
+
+from .bookmarks_schema import ShowBookmark, ShowFavourite
+from .bookmarsk_models import BookmarkUser, FavouriteUser
+
+
 
 app = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 
@@ -42,8 +44,6 @@ async def get_bookmarks(me = Depends(get_current_user),session:AsyncSession = De
 async def get_favourite(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     favourite = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.favourite_books)))
     return favourite.favourite_books
-
-
 
 
 # create favourite(redact)

@@ -11,12 +11,14 @@ import datetime
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func, select
 
-from .date import dates,monthes
-
 from ..app_auth.auth_models import User
 from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
 from ..reading_books.booksRead_models import Reading_Book
 from ..books.books_models import Ganre,Book
+
+from .date import dates,monthes
+
+
 
 # get_pages_last_7_days
 async def get_pages_last_7_days_func(me:User, session:AsyncSession) -> dict:

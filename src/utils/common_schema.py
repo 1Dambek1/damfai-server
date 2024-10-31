@@ -16,4 +16,5 @@ class ShowBook(BaseModel):
     ratings: float |  None
     ganres: list[str] 
     
-
+    target_of_books:Optional[int] | None
+    target_of_date: datetime.date | None

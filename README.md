@@ -15,20 +15,8 @@ docker-compose up --build
 ## Исправить
  - 
 
-## Редачить
- - books/router/reading_books
- - bookmarks/router/ /
- - analytics
 
 ## Добавить
- - recommendations
- - embedings
- - elasticsearch
+ - отмена гонки, перенос на celery
 
 
-
-Redact
-- books
-- app_auth
-- bookmarks
-- analithic
