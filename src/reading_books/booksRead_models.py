@@ -24,8 +24,6 @@ class Reading_Book(Base):
     start_to_read:Mapped[datetime.date] = mapped_column(default=datetime.datetime.now().date())
 
     finish_to_read:Mapped[datetime.date] = mapped_column(nullable=True)
-    
-    target_days_min:Mapped[int] = mapped_column(nullable=True)
-    
-    target_days_max:Mapped[int] = mapped_column(nullable=True)
+
+    target_of_date:Mapped[datetime.date] = mapped_column(nullable=True)
     

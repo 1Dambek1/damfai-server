@@ -30,3 +30,9 @@ class ShowBookWithChapters(BaseModel):
 
     chapters:   list[ShowChapter] |  None
 
+
+
+class ShowPage(BaseModel):
+    
+    numberOfPage:int
+    text:str

@@ -26,11 +26,11 @@ from ..db import get_session
 from ..books.books_models import Book,Rating, Authors
 from ..utils.common_schema import ShowBook
 
-from .recomendations_utils import find_most_similar
+from .recommendations_utils import find_most_similar
 from .books_filter import BookFilter
 
 
-app = APIRouter(prefix="/recomendations", tags=["recomendations"])
+app = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
 # # search book per ganre(redact)
 @app.get("/books/per_ganre")
