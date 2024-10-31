@@ -124,14 +124,44 @@ async def finish_book(book_id:int,me = Depends(get_current_user),session:AsyncSe
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
 
 
+async def make_target_func(min_days:int,max_days:int, r_book: Reading_Book, session: AsyncSession):
+
+    if min_days:
+        r_book.target_days_min = min_days
+    if max_days:
+        r_book.target_days_max = max_days
+    await session.commit()
+    
+@app.get("/target/{book_id}")
+async def get_target(book_id:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
+    if r_book:
+        return {"min_days":r_book.target_days_min,"max_days":r_book.target_days_max, "book_id": book_id}
+    
+    raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
+   
+    
+
+
 @app.put("/make_target")
 async def make_target(book_id:int,min_days:int = None,max_days:int = None,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
     if r_book:
-        if min_days:
-            r_book.target_days_min = min_days
-        if min_days:
-            r_book.target_days_max = max_days
-        await session.commit()
-        return True
-    raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
+        await make_target_func(min_days,max_days,r_book,session)
+        return True 
+    else:
+        book = await session.scalar(select(Book).where(Book.id == book_id))
+        if book:
+            me.reading_books.append(book)
+            await session.commit()
+            r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
+            await make_target_func(min_days,max_days,r_book,session)
+            return True
+
+         
+        
+    
+    raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
+
+    
+
