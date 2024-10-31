@@ -16,22 +16,27 @@ from ..analytics.analytics_models import PagesPerDay
 
 from .booksRead_models import Reading_Book
 from .bookRead_utils import add_minutes_and_points_for_run_per_day
+from .booksRead_schema import ShowReadingBook
 
 
 app = APIRouter(prefix="/books-read", tags=["books-read"])
 
 # start to read book(redact)
 @app.post("/start_to_read/{book_id}")
-async def start_to_read(book_id:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def start_to_read(book_id:int,target_of_date:datetime.date = None,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
         book = await session.scalar(select(Book).where(Book.id == book_id))
         if book:
-            me.reading_books.append(book)
+            if target_of_date:
+                r_book = Reading_Book(book_id = book.id,user_id = me.id,target_of_date = target_of_date)
+            else:
+                r_book = Reading_Book(book_id = book.id,user_id = me.id)
+            session.add(r_book)
             await session.commit()
             return True
         raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
 # all reading books(optimize in future)
-@app.get("/reading_books")
+@app.get("/reading_books", response_model=list[ShowReadingBook])
 async def get_reading_books(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     reading_books = await session.scalars(select(Reading_Book)
                                           .where(Reading_Book.user_id == me.id)
@@ -63,14 +68,14 @@ async def get_reading_books(me = Depends(get_current_user),session:AsyncSession 
             
             data = {
                 "id":i.book.id,
-                "id":i.book.id,
                 "title":i.book.title,
                 "author":i.book.author,
                 "writen_date":i.book.writen_date,
                 "progress":progress,
                 "start_to_read":i.start_to_read,
                 "finish_to_read":i.finish_to_read,
-                "is_read":i.is_read
+                "is_read":i.is_read,
+                "target_of_date":i.target_of_date
             }
             dataset.append(data)
         await session.commit()
@@ -124,14 +129,11 @@ async def finish_book(book_id:int,me = Depends(get_current_user),session:AsyncSe
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
 
 
-@app.put("/make_target")
-async def make_target(book_id:int,min_days:int = None,max_days:int = None,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+@app.put("/update_target")
+async def update_target(book_id:int,target_of_date:datetime.date,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
     if r_book:
-        if min_days:
-            r_book.target_days_min = min_days
-        if min_days:
-            r_book.target_days_max = max_days
+        r_book.target_of_date = target_of_date
         await session.commit()
         return True
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)

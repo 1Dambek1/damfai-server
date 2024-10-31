@@ -14,7 +14,7 @@ from ..get_current_me import get_current_user
 from ..db import get_session
 from ..utils.common_schema import ShowBook
 
-from .books_schema import  CreateRating, ShowGanres,ShowBookWithChapters
+from .books_schema import  CreateRating, ShowGanres,ShowBookWithChapters,ShowPage
 from .books_models import Book, Chapter, PageModel, Rating, Ganre
 
 app = APIRouter(prefix="/books", tags=["books"])
@@ -78,7 +78,7 @@ async def get_books_with_chapters(id_book:int,session:AsyncSession = Depends(get
 
 
 # get page of chapter(redact)
-@app.get("/get_pages_by_chapter/{id_chapter}")
+@app.get("/get_pages_by_chapter/{id_chapter}", response_model=ShowPage)
 async def get_pages_by_chapter(id_chapter:int, page:int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     page = await session.scalar(select(PageModel).where(PageModel.chapter_id == id_chapter, PageModel.numberOfPage == page))
     return page
@@ -103,8 +103,7 @@ async def create_rating(rating_data:CreateRating,me = Depends(get_current_user),
                 "data":"book is not exist",
                 "status":400
         })
-    await session.refresh(rating)
-    return rating
+    return True
 
 
 #  ---------------------work with ganres---------------------
