@@ -9,7 +9,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import Base, engine, get_session
-from ..books.books_models import Book, Ganre, Chapter, PageModel, Authors
+from ..books.books_models import Book, Ganre, Chapter, PageModel, Authors, EmoteEnum
+from random import randint
 
 app = APIRouter(prefix="/utils", tags=["utils"])
 
@@ -73,8 +74,9 @@ async def parse_books(session:AsyncSession = Depends(get_session)):
                 author = Authors(author=i["author"])
                 session.add(author)
                 await session.flush()
-                
-            book = Book(zip_text = i["zip_text"],title=i["title"], author=author.author, desc=i["desc"], age_of_book=i["age_of_book"], writen_date = datetime.date(1985, 7, 19))
+
+            emotes = [emote.value for emote in EmoteEnum]
+            book = Book(zip_text = i["zip_text"],title=i["title"], author=author.author, desc=i["desc"], age_of_book=i["age_of_book"], writen_date = datetime.date(1985, 7, 19), emote=emotes[randint(0, len(emotes)-1)])
             for i2 in i["ganre_id"]:
                 ganre = await session.scalar(select(Ganre).where(Ganre.id == int(i2)))
                 book.ganres.append(ganre)
@@ -90,6 +92,7 @@ async def parse_books(session:AsyncSession = Depends(get_session)):
                     page = PageModel(numberOfPage=num, text=i3, chapter_id = chapter.id)
                     session.add(page)
                     await session.flush()
+
         await session.commit()                
 
 

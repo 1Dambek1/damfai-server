@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy.orm  import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from typing import  TYPE_CHECKING
-
+from enum import Enum
 from ..db import Base
 
 if TYPE_CHECKING:
@@ -34,6 +34,13 @@ class Authors(Base):
     books:Mapped["Book"] = relationship(uselist=True)
 
 
+class EmoteEnum(Enum):
+  happy = "happy"
+  sad = "sad"
+  neutral = "neutral"
+  lover = "lover"
+  angry = "angry"
+
 class Book(Base):
     
     __tablename__ = "book_table"
@@ -47,7 +54,7 @@ class Book(Base):
     desc:Mapped[str]
     writen_date:Mapped[datetime.date] = mapped_column(nullable=True)
     age_of_book:Mapped[int] = mapped_column(nullable=True)
-    
+    emote: Mapped[EmoteEnum] = mapped_column(default=None, nullable=True)
     zip_text:Mapped[str]
 
 
@@ -72,6 +79,7 @@ class Chapter(Base):
     book:Mapped["Book"] = relationship(uselist=False, back_populates="chapters")
 
     pages:Mapped[list["PageModel"]] = relationship(back_populates="chapter", uselist=True)
+    
 
 
 class PageModel(Base):
@@ -103,3 +111,4 @@ class GanreBook(Base):
     
     ganre_id:Mapped[int] = mapped_column(ForeignKey("ganre_table.id"), primary_key=True)
     book_id:Mapped[int] = mapped_column(ForeignKey("book_table.id"), primary_key=True)
+

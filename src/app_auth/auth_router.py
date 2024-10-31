@@ -44,7 +44,7 @@ async def register_user(data:RegisterUser ,session:AsyncSession = Depends(get_se
     data_dict["password"] = await decode_password(password=data.password)
     
     
-    user = User(**data_dict)
+    user = User(**data_dict, emote=None)
     session.add(user) 
     await session.flush()
 
