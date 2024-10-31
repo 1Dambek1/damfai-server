@@ -21,7 +21,7 @@ app = APIRouter(prefix="/books", tags=["books"])
 
 
 # get book by id(redact)
-@app.get("/get/book/{id_book}", response_model=ShowBook)
+@app.get("/get/book/{id_book}")
 async def get_book(id_book:int, session:AsyncSession = Depends(get_session)):
     books_query = (select(Book,func.coalesce(func.avg(Rating.rating), 0).label("average_rating"),func.count(Chapter.id).label("chapters"))
                    .join(Rating, isouter=True)

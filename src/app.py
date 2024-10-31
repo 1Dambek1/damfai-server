@@ -15,8 +15,9 @@ from .extensions.extensions_router import app as extensions_app
 from .reading_books.booksRead_router import app as books_read_app
 from .utils.utils_router import app as utils_app
 from .themes.themes_router import app as theme_app
+from .emotes_books.emotes_books_router import app as emotes_books_app
 from .shop.shop_router import app as shop_app
-# from .search_book.recomendations_router import app as recomendation_router
+# from .search_book.recommendations_router import app as recommendations_app
 from .running.running_router import app as running_app
 
 app = FastAPI(title="damfai")
@@ -29,12 +30,12 @@ app.include_router(auth_app)
 app.include_router(books_app)
 app.include_router(bookmarks_app)
 app.include_router(books_read_app)
-# app.include_router(recomendation_router)
+app.include_router(emotes_books_app)
+# app.include_router(recommendations_app)
 
 # app.include_router(gigachat_app)
 
 app.include_router(analytic_app)
-
 app.include_router(theme_app)
 app.include_router(extensions_app)
 app.include_router(shop_app)

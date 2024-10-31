@@ -10,6 +10,7 @@ from enum import Enum
 
 from ..db import Base
 
+from ..books.books_models import EmoteEnum
 if typing.TYPE_CHECKING:   
     from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
     from ..books.books_models import Book, PageModel
@@ -87,6 +88,8 @@ class User(Base):
     #  analytics router
     pages_per_day:Mapped[list["PagesPerDay"]] = relationship(back_populates="user", uselist=True)
     minutes_per_day:Mapped[list["MinutesPerDay"]] = relationship(back_populates="user", uselist=True)
+
+    emote: Mapped[EmoteEnum] = mapped_column(default=None, nullable=True)
 
     
     
