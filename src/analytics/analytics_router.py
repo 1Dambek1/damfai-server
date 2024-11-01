@@ -1,13 +1,17 @@
 
 import json
-from fastapi import APIRouter, Depends, HTTPException
 
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from .analytics_schema import PerDateData, PerMonthData
+from src.db import get_session
+from src.get_current_me import get_current_user
+from src.app_auth.auth_models import User 
+
+from .analytics_schema import PerDateData, PerMonthData, CommonReadingInfo
 from .get_statistics import (
 get_common_statistics_func,
 get_pages_last_7_days_func,
@@ -16,17 +20,11 @@ get_books_last_12_months_func,
 get_favourite_ganres_func,
 )
 
-from ..get_current_me import get_current_user
-from ..db import get_session
-from ..app_auth.auth_models import User 
-
-
 app = APIRouter(prefix="/analytics", tags=["analytics"])
-
-
 
 # ________________UPDATE ANALYTICS DATA____________________
 
+# update speed words per minute
 @app.put("/update_speed_words_per_minute")
 async def update_sped_words_per_minute(speed:float,me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     result = eval(me.words_per_minute)
@@ -43,7 +41,7 @@ async def update_sped_words_per_minute(speed:float,me:User = Depends(get_current
 # ________________GRAPHICS____________________
 
 # reading common info
-@app.get("/reading_info")
+@app.get("/reading_info", response_model=CommonReadingInfo)
 async def get_reading_info(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     user = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.reading_books), selectinload(User.minutes_per_day), selectinload(User.pages_per_day)))
     return await get_common_statistics_func(user, session)

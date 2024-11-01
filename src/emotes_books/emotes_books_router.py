@@ -1,17 +1,16 @@
 
-import datetime
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
+from src.get_current_me import  get_current_user
+from src.app_auth.auth_models import User
+from src.db import get_session
+from src.books.books_models import Book
+
 from .emotes_books_schema import SaveEmoteEnum
 
-
-from ..get_current_me import  get_current_user
-from ..app_auth.auth_models import User
-from ..db import get_session
-from ..books.books_models import Book
 app = APIRouter(prefix="/emotes-books", tags=["emotes-books"])
 
 @app.get("/all")
@@ -21,8 +20,6 @@ async def get_all_emotes_books(user: User = Depends(get_current_user),session:As
 		return books.all()
 
 	return []
-
-
 
 @app.put("/save/emote") 
 async def save_emote(data:SaveEmoteEnum,user: User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):

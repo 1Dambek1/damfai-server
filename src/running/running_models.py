@@ -5,11 +5,11 @@ from sqlalchemy.orm import  Mapped, mapped_column, relationship
 import enum
 import typing
 
-from ..db import Base
+from src.db import Base
 
 if typing.TYPE_CHECKING:
-  from ..app_auth.auth_models import User
-  from ..books.books_models import  Authors
+  from src.app_auth.auth_models import User
+  from src.books.books_models import  Authors
   
 class Status(enum.Enum):
     not_started = "not_started"
@@ -33,7 +33,6 @@ class Running(Base):
   winners:Mapped[list["Winner"]] = relationship(back_populates="running", uselist=True)
   
   prizes:Mapped[list["Prize"]] = relationship(back_populates="running", uselist=True)
-
 
 class Prize(Base):
   __tablename__ = "prize_table"

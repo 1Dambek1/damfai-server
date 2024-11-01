@@ -1,33 +1,27 @@
 
-import asyncio
-import datetime
-import logging
-
-from fastapi import APIRouter, Depends, HTTPException, logger
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
-from .running_models import Running, Status, Winner, Prize
+from .running_models import Running
 from .running_utils import get_active_running
-from .running_schema import RunningSchema, WinnerSchema, RankingSchema
+from .running_schema import RunningSchema,RankingSchema
 
-from ..get_current_me import  get_current_user
-from ..app_auth.auth_models import User
-from ..db import get_session, session
-from ..books.books_models import Book, Chapter, PageModel, Authors, Rating
-from ..analytics.analytics_models import PagesPerDay
+from src.get_current_me import  get_current_user
+from src.app_auth.auth_models import User
+from src.db import get_session
+from src.books.books_models import Book, Chapter, Rating
 
-from ..utils.common_schema import ShowBook
+from src.utils.common_schema import ShowBook
 
-from ..scheduler_connect import cancel_running_task
 app = APIRouter(prefix="/running", tags=["running"])
 
 
 # get active running with prizes
 @app.get("/acitve_running", response_model=RunningSchema)
-async def get_running(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def acitve_running(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     running = await get_active_running(session=session)
     if running:
         return running
@@ -35,14 +29,14 @@ async def get_running(me = Depends(get_current_user),session:AsyncSession = Depe
 
 # get running by id
 @app.get("/running/{id_running}", response_model=RunningSchema)
-async def get_running(id_running:int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def get_running_id(id_running:int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     running = await session.scalar(select(Running).options(selectinload(Running.prizes), selectinload(Running.winners)).where(Running.id == id_running))
     if running:
         return running
     raise HTTPException(detail={"detail":"This running is not exist", "status_code":400}, status_code=400)
 
 # places of active running
-@app.get("/place")
+@app.get("/place", response_model=RankingSchema)
 async def get_running_places(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     top_users_query = (
         select(

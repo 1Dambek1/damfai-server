@@ -1,14 +1,12 @@
 from pydantic import BaseModel
-from typing import Optional
 
 import enum
 
 class SumTextSchema(BaseModel):
     sum_text: str
-    lang: str = "ru"
-    level: str = "easy"
-    
-    
+    lang: str
+    level: str 
+     
 class LevelOfSumTextSchema(enum.Enum):
     small_sum = "summary big"
     middle_sum = "summary"

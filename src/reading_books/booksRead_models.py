@@ -1,13 +1,11 @@
-
 import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from sqlalchemy import UniqueConstraint
 
-from ..db import Base
+from src.db import Base
 
-from ..books.books_models import Book
+from src.books.books_models import Book
 
 class Reading_Book(Base):
     
@@ -31,8 +29,6 @@ class Reading_Book(Base):
     
     pages:Mapped[list["ReadingPage"]] = relationship(uselist=True, back_populates="r_book")
     
-
-
 class ReadingPage(Base):
     __tablename__ = "reading_page"
     

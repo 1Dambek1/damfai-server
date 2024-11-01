@@ -2,19 +2,19 @@ import joblib
 from pathlib import Path
 import numpy as np
 
-from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from calendar import monthrange
+
 import datetime
 
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func, select
 
-from ..app_auth.auth_models import User
-from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
-from ..reading_books.booksRead_models import Reading_Book
-from ..books.books_models import Ganre,Book
+from src.app_auth.auth_models import User
+from src.analytics.analytics_models import PagesPerDay, MinutesPerDay
+from src.reading_books.booksRead_models import Reading_Book
+from src.books.books_models import Ganre,Book
 
 from .date import dates,monthes
 
@@ -81,7 +81,7 @@ async def get_common_statistics_func(user: User, session: AsyncSession) -> dict:
     if user:
         user_id = user.id
         
-        books_count = await session.scalar(select(func.count(Reading_Book.book_id)).where(Reading_Book.is_read == True))
+        books_count = await session.scalar(select(func.count(Reading_Book.book_id)).where(Reading_Book.is_read))
         pages_count = 0
         
         for i in user.pages_per_day:
@@ -92,7 +92,7 @@ async def get_common_statistics_func(user: User, session: AsyncSession) -> dict:
         start = datetime.date(year, month, 1)
         end = datetime.date(year, month, monthrange(year, month)[1])
         pages_per_month = await session.scalar(select(func.sum(PagesPerDay.pages_count)).where(PagesPerDay.date.between(start, end)))
-        books_per_month = await session.scalar(select(func.sum(Reading_Book.book_id)).where(Reading_Book.finish_to_read.between(start, end), Reading_Book.is_read == True))
+        books_per_month = await session.scalar(select(func.sum(Reading_Book.book_id)).where(Reading_Book.finish_to_read.between(start, end), Reading_Book.is_read))
         words_per_minute:list[int] = eval(user.words_per_minute)
         words_per_min = (sorted(words_per_minute))[round(len(words_per_minute)/2 - 0.5)]
         dataset = {
@@ -106,7 +106,6 @@ async def get_common_statistics_func(user: User, session: AsyncSession) -> dict:
             "predicted_pages": await get_predicted_pages_func(user, session),
         }
         return dataset
-
 
 # get_books_last_12_months
 async def get_books_last_12_months_func(me:User, session:AsyncSession) -> dict:

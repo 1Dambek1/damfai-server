@@ -1,6 +1,7 @@
 /venv/
 /db_data/
 /__pycache__/
-damfai-server
 pyproject.toml
-src/images
+celery_connection
+parse/main.py
+parse/dataset.json

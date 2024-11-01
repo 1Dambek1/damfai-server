@@ -1,19 +1,17 @@
 
-import shutil
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends,  HTTPException
 from fastapi.responses import FileResponse
 
 
-from ..get_current_me import get_current_user
-from ..db import get_session
-from ..utils.common_schema import ShowBook
-from ..reading_books.booksRead_models import Reading_Book
+from src.get_current_me import get_current_user
+from src.db import get_session
+from src.utils.common_schema import ShowBook
+from src.reading_books.booksRead_models import Reading_Book
 
 from .books_schema import  CreateRating, ShowGanres,ShowBookWithChapters,ShowPage
 from .books_models import Book, Chapter, PageModel, Rating, Ganre
@@ -86,6 +84,7 @@ async def get_pages_by_chapter(id_book:int,id_chapter:int, page:int, me = Depend
         page = await session.scalar(select(PageModel).where(PageModel.chapter_id == id_chapter, PageModel.numberOfPage == page))
         return page
     raise HTTPException(detail={"status_code":403, "detail":"You do not read this book"}, status_code=403)
+
 #  ---------------------work with rating---------------------
 
 # rate book (redact)

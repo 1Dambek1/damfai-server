@@ -1,9 +1,8 @@
 import torch
 import torch.nn.functional as F
-from ..books.books_models import Book
 
-
-from ..ml_connect import tokenizer,model
+from src.books.books_models import Book
+from src.ml_connect import tokenizer,model
 
 def get_mean_embedings(text: str):
     inputs = tokenizer(text, return_tensors="pt")

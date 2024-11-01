@@ -1,23 +1,18 @@
-
-import json
-import pathlib
-from sqlalchemy.orm import selectinload
 from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from ..get_current_me import  get_current_user
-from ..db import get_session
-from ..app_auth.auth_models import User
-from ..themes.themes_models import Theme
+from src.get_current_me import  get_current_user
+from src.db import get_session
+from src.themes.themes_models import Theme
 
 from .shop_schema import  ShowTheme
 
 
 app = APIRouter(prefix = "/shop", tags = ["shop"])
 
-
+# add balance
 @app.get('/balance_increase')
 async def balance_increase(balance: int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
 
@@ -25,9 +20,7 @@ async def balance_increase(balance: int, me = Depends(get_current_user),session:
 	await session.commit()
 	return True
 
-
-
-
+# but theme
 @app.get('/buy/user/themes/{theme_id}', response_model=ShowTheme)
 async def add_theme_to_user(theme_id: int, user = Depends(get_current_user), session: AsyncSession = Depends(get_session)): 
 
@@ -45,6 +38,7 @@ async def add_theme_to_user(theme_id: int, user = Depends(get_current_user), ses
 	await session.refresh(user)
 	return theme
 
+# sell theme
 @app.delete('/sell/user/themes/{theme_id}')
 async def remove_theme_from_user(theme_id: int, user = Depends(get_current_user), session: AsyncSession = Depends(get_session)): 
 

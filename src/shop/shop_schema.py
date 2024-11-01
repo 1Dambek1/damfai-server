@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-
 class ShowTheme(BaseModel):
   id: int
   name: str

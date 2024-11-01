@@ -1,6 +1,5 @@
 
 import datetime
-import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -8,14 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from ..get_current_me import  get_current_user
-from ..app_auth.auth_models import User
-from ..db import get_session
-from ..books.books_models import Book, Chapter, PageModel
-from ..analytics.analytics_models import PagesPerDay
+from src.get_current_me import  get_current_user
+from src.db import get_session
+from src.books.books_models import Book, Chapter, PageModel
+from src.analytics.analytics_models import PagesPerDay
 
 from .booksRead_models import Reading_Book
-from .bookRead_utils import add_minutes_and_points_for_run_per_day, count_words_function
+from .bookRead_utils import add_minutes_and_points_for_run_per_day
 from .booksRead_schema import ShowReadingBook
 
 

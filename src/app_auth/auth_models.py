@@ -8,16 +8,14 @@ from sqlalchemy.orm import  Mapped, mapped_column, relationship
 
 from enum import Enum
 
-from ..db import Base
-
-from ..books.books_models import EmoteEnum
+from src.books.books_models import EmoteEnum
 if typing.TYPE_CHECKING:   
-    from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
-    from ..books.books_models import Book, PageModel
-    from ..themes.themes_models import Theme
-    from ..reading_books.booksRead_models import ReadingPage
-    from ..extensions.extensions_models import Extension
+    from src.analytics.analytics_models import PagesPerDay, MinutesPerDay
+    from src.books.books_models import Book, PageModel
+    from src.themes.themes_models import Theme
+    from src.extensions.extensions_models import Extension
  
+from src.db import Base
 
 class Role(Enum):
     user = "user"
@@ -96,8 +94,6 @@ class User(Base):
     emote: Mapped[EmoteEnum] = mapped_column(default=None, nullable=True)
 
     
-    
-
 class UserTg(Base):
     __tablename__ = "user_tg_table"
     id:Mapped[uuid.UUID] = mapped_column(primary_key=True)

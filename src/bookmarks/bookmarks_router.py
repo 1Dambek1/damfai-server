@@ -5,11 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from ..get_current_me import  get_current_user
-from ..app_auth.auth_models import User
-from ..db import get_session
-from ..books.books_models import Chapter, PageModel
-from ..reading_books.booksRead_models import ReadingPage,Reading_Book
+from src.get_current_me import  get_current_user
+from src.app_auth.auth_models import User
+from src.books.books_models import Chapter, PageModel
+from src.db import get_session
 
 from .bookmarks_schema import ShowBookmark, ShowFavourite
 from .bookmarsk_models import BookmarkUser, FavouriteUser
@@ -74,7 +73,6 @@ async def bookmarks_update(page_id:int,me = Depends(get_current_user),session:As
     return True
 
 
- 
 #  check bookmarks(redact)
 @app.get("/is_bookmark/{page_id}")
 async def is_bookmark(page_id:int, me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
