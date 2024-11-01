@@ -32,10 +32,10 @@ async def get_bookmarks(me = Depends(get_current_user),session:AsyncSession = De
             "author":i.chapter.book.author,
             "desc":i.chapter.book.desc,
             "writen_date":i.chapter.book.writen_date,
-            "age_of_book":i.chapter.book.age_of_book,
-            "id_current_chapter":i.chapter_id,
-            "current_page":i.id,
-            "current_number_of_page": i.numberOfPage
+            "ageOfBook":i.chapter.book.age_of_book,
+            "idCurrentChapter":i.chapter_id,
+            "currentPage":i.id,
+            "currentNumberOfPage": i.numberOfPage
         }
         dataset.append(data)
     return dataset
@@ -46,26 +46,6 @@ async def get_favourite(me = Depends(get_current_user),session:AsyncSession = De
     favourite = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.favourite_books)))
     return favourite.favourite_books
 
-# @app.get("/sum_bookmarks")
-# async def sum_bookmarks(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-#     user = await session.scalar(select(User).where(User.id == me.id)
-#                                 .options(selectinload(User.bookmarks_on_sum_page)
-#                                          .selectinload(ReadingPage.r_book)
-#                                          .selectinload(Reading_Book.book)))
-#     dataset  = []
-#     for i in user.bookmarks_on_sum_page:
-#         data = {
-#             "id":i.r_book.book.id,
-#             "title":i.r_book.book.title,
-#             "author":i.r_book.book.author,
-#             "desc":i.r_book.book.desc,
-#             "writen_date":i.r_book.book.writen_date,
-#             "age_of_book":i.r_book.book.age_of_book,
-#             "current_number_of_page": i.numberOfPage
-
-#         }
-#         dataset.append(data)
-#     return dataset
 
 # create favourite(redact)
 @app.put("/favourite/{book_id}")

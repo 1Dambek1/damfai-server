@@ -32,12 +32,12 @@ class RunningSchema(BaseModel):
 
 
 class RankedUser(BaseModel):
-    id:int
+    id: int
     name: str
     surname: str
-    running_points: int
-    rank: int
+    runningPoints: int
+    place: int
     
 class RankingSchema(BaseModel):
-    top_100_users:list[RankedUser]
-    your_rank:RankedUser
+    topUsers: list[RankedUser]
+    userRank: RankedUser

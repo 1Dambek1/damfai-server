@@ -11,7 +11,7 @@ from sqlalchemy.orm import selectinload
 
 from .running_models import Running, Status, Winner, Prize
 from .running_utils import get_active_running
-from .running_schema import RunningSchema, WinnerSchema, PrizeSchema,RankingSchema
+from .running_schema import RunningSchema, WinnerSchema, RankingSchema
 
 from ..get_current_me import  get_current_user
 from ..app_auth.auth_models import User
@@ -44,63 +44,62 @@ async def get_running(id_running:int, me = Depends(get_current_user),session:Asy
 # places of active running
 @app.get("/place")
 async def get_running_places(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-
-    ranked_users = (
+    top_users_query = (
         select(
             User.id,
             User.name,
             User.surname,
             User.running_points,
-            func.row_number().over(order_by=User.running_points.desc()).label("ranking")
+            func.row_number().over(order_by=User.running_points.desc()).label("place")
         )
         .order_by(User.running_points.desc())
         .limit(100)
     )
     
-    your_rank = (
+    user_rank_query = (
         select(
             User.id,
             User.name,
             User.surname,
             User.running_points,
-            func.row_number().over(order_by=User.running_points.desc()).label("ranking")
+            func.row_number().over(order_by=User.running_points.desc()).label("place")
         )
         .order_by(User.running_points.desc())
         .where(User.id == me.id)
     )
+
     
     # Выполняем запросы
-    your_rank = await session.execute(your_rank)
+    user_rank = await session.execute(user_rank_query)
+    rank_row = user_rank.fetchone()
     
-    rank_row = your_rank.fetchone()
+    result = await session.execute(top_users_query)
 
-    user_rank_dict = {
-            "id": rank_row[0],
-            "name": rank_row[1],
-            "surname": rank_row[2],
-            "running_points": rank_row[3],
-            "rank": rank_row[4]
-        }
+    user_rank = {
+        "id": rank_row[0],
+        "name": rank_row[1],
+        "surname": rank_row[2],
+        "runningPoints": rank_row[3],
+        "place": rank_row[4]
+    }
     
-    result = await session.execute(ranked_users)
-    
-    
-    # Преобразуем результат в словарь
-    top_100_users_dict = {
-        "top_100_users": [
+    top_users = [
         {
-            "id": user_id,
+            "id": id,
             "name": name,
             "surname": surname,
-            "running_points": running_points,
-            "rank": ranking
-        }
-        for user_id, name, surname, running_points, ranking in result
-    ],
-        "your_rank": user_rank_dict
-        }
+            "runningPoints": running_points,
+            "place": place
+        } for id, name, surname, running_points, place in result
+    ]
+
+    # Преобразуем результат в словарь
+    leaderboard = {
+        "topUsers": top_users,
+        "userRank": user_rank
+    }
     
-    return top_100_users_dict
+    return leaderboard
     
 # get books by running
 @app.get("/books", response_model=list[ShowBook])
@@ -138,10 +137,4 @@ async def get_books(session:AsyncSession = Depends(get_session)):
         return dataset
     raise HTTPException(detail={"detail":"This running is not exist", "status_code":400}, status_code=400)
     
-    
-# ________test________________
-@app.get("/authors")
-async def get_authors(session:AsyncSession = Depends(get_session)):
-    authors = await session.scalars(select(Authors).options(selectinload(Authors.books)))
-    return authors.all()
 
