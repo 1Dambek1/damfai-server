@@ -9,6 +9,7 @@ from ..get_current_me import  get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Chapter, PageModel
+from ..reading_books.booksRead_models import ReadingPage,Reading_Book
 
 from .bookmarks_schema import ShowBookmark, ShowFavourite
 from .bookmarsk_models import BookmarkUser, FavouriteUser
@@ -45,6 +46,26 @@ async def get_favourite(me = Depends(get_current_user),session:AsyncSession = De
     favourite = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.favourite_books)))
     return favourite.favourite_books
 
+# @app.get("/sum_bookmarks")
+# async def sum_bookmarks(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+#     user = await session.scalar(select(User).where(User.id == me.id)
+#                                 .options(selectinload(User.bookmarks_on_sum_page)
+#                                          .selectinload(ReadingPage.r_book)
+#                                          .selectinload(Reading_Book.book)))
+#     dataset  = []
+#     for i in user.bookmarks_on_sum_page:
+#         data = {
+#             "id":i.r_book.book.id,
+#             "title":i.r_book.book.title,
+#             "author":i.r_book.book.author,
+#             "desc":i.r_book.book.desc,
+#             "writen_date":i.r_book.book.writen_date,
+#             "age_of_book":i.r_book.book.age_of_book,
+#             "current_number_of_page": i.numberOfPage
+
+#         }
+#         dataset.append(data)
+#     return dataset
 
 # create favourite(redact)
 @app.put("/favourite/{book_id}")

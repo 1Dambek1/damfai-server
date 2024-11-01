@@ -21,10 +21,10 @@ class RunningSchema(BaseModel):
     id:int
     name_running: str
     author_name: str
-    start_running_date: Annotated[datetime.date, None]
-    end_running_date: Annotated[datetime.date, None]
+    start_running_date: datetime.datetime | None
+    end_running_date: datetime.datetime | None
 
-    Status: Status
+    status: Status
 
 
     winners:list[WinnerSchema] | None

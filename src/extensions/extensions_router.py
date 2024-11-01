@@ -22,32 +22,7 @@ async def get_extensions(session:AsyncSession = Depends(get_session)):
 	extensions = await session.scalars(select(Extension))
 	return extensions.all()
 
-# create extensions(DEBUG)
-@app.post('/create/all', description="debug")
-async def create_extensions(session:AsyncSession = Depends(get_session)): 
-	BASE_DIR = pathlib.Path(__file__).resolve().parent.parent .parent
-	ex_data_url = BASE_DIR / 'data' / 'extensions.json'
-	with open(ex_data_url, "r", encoding='utf-8') as f:
-		extensions = json.load(f)
-	objects = [Extension(**i) for i in extensions]
-	try:
-		session.add_all(objects)
-		await session.commit()
-	except Exception as e:
-		await session.rollback()
-		raise e
 
-
-	return True
-
-@app.post('/create', response_model=ShowExtension)
-async def create_extension(data: CreateExtension, _ = Depends(get_current_admin), session: AsyncSession = Depends(get_session)): 
-	data_dict = data.model_dump()
-	extension = Extension(**data_dict)
-	session.add(extension)	
-	await session.commit()
-	await session.refresh(extension)
-	return extension
 
 @app.get('/user/extensions', response_model=list[ShowExtension])
 async def get_extensions_by_user(user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 

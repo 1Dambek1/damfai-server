@@ -15,6 +15,7 @@ if typing.TYPE_CHECKING:
     from ..analytics.analytics_models import PagesPerDay, MinutesPerDay
     from ..books.books_models import Book, PageModel
     from ..themes.themes_models import Theme
+    from ..reading_books.booksRead_models import ReadingPage
     from ..extensions.extensions_models import Extension
  
 
@@ -67,6 +68,9 @@ class User(Base):
         uselist=True,
         secondary="bookmark_user_table")
     
+    # bookmarks_on_sum_page:Mapped[list["ReadingPage"]] = relationship(
+    #     uselist=True,
+    #     secondary="sum_bookmark_user_table")
     
     #  theme router
     themes: Mapped[list["Theme"]] = relationship(
