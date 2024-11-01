@@ -15,7 +15,7 @@ from ..books.books_models import Book, Chapter, PageModel
 from ..analytics.analytics_models import PagesPerDay
 
 from .booksRead_models import Reading_Book
-from .bookRead_utils import add_minutes_and_points_for_run_per_day
+from .bookRead_utils import add_minutes_and_points_for_run_per_day, count_words_function
 from .booksRead_schema import ShowReadingBook
 
 
@@ -26,6 +26,10 @@ app = APIRouter(prefix="/books-read", tags=["books-read"])
 async def start_to_read(book_id:int,target_of_date:datetime.date = None,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
         book = await session.scalar(select(Book).where(Book.id == book_id))
         if book:
+            r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
+            if r_book:
+                raise HTTPException(detail={"detail":"You have already read this book", "status_code":400}, status_code=400)
+                
             if target_of_date:
                 r_book = Reading_Book(book_id = book.id,user_id = me.id,target_of_date = target_of_date)
             else:
@@ -33,6 +37,7 @@ async def start_to_read(book_id:int,target_of_date:datetime.date = None,me = Dep
             session.add(r_book)
             await session.commit()
             return True
+            
         raise HTTPException(detail={"detail":"Book is not exist", "status_code":400}, status_code=400)
 
 # all reading books(optimize in future)
@@ -84,34 +89,34 @@ async def get_reading_books(me = Depends(get_current_user),session:AsyncSession 
 
 # read some page in reading book(redact)
 @app.get("/read_page")
-async def read_page(page_id:int,book_id:int,time_minutes:float,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def read_page(page:int,book_id:int,chapter_id:int,time_minutes:float,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     reading_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
     if reading_book:
         
-        reading_page = await session.scalar(select(PageModel)
-                                            .where(PageModel.id == page_id)
-                                            .options(selectinload(PageModel.chapter).selectinload(Chapter.book)))
+        page_r = await session.scalar(select(PageModel).options(selectinload(PageModel.chapter).selectinload(Chapter.book)).where(PageModel.chapter_id == chapter_id, PageModel.numberOfPage == page))
+
         
-        if reading_page and reading_page.chapter.book_id == book_id:
+        if page_r:
+            if page_r.chapter.book_id == book_id:
             
-            await add_minutes_and_points_for_run_per_day(time_minutes,book_id,me,session)
-            
-            # add running
-            count_pages_per_day = await session.scalar(select(PagesPerDay)
-                                                       .where(PagesPerDay.date == datetime.datetime.now().date(), PagesPerDay.user_id == me.id))
-            
-            if count_pages_per_day:
-                count_pages_per_day.pages_count += 1
-            else:
-                count_pages_per_day = PagesPerDay(date=datetime.datetime.now().date(),pages_count=1,user_id=me.id)
-                session.add(count_pages_per_day)
-            
-            if reading_book.last_reading_page < reading_page.numberOfPage:
-                reading_book.last_reading_page = reading_page.numberOfPage
+                await add_minutes_and_points_for_run_per_day(time_minutes,book_id,me,session, status = reading_book.last_reading_page < page_r.numberOfPage)
+                
+                # add running
+                count_pages_per_day = await session.scalar(select(PagesPerDay)
+                                                        .where(PagesPerDay.date == datetime.datetime.now().date(), PagesPerDay.user_id == me.id))
+                
+                if count_pages_per_day:
+                    count_pages_per_day.pages_count += 1
+                else:
+                    count_pages_per_day = PagesPerDay(date=datetime.datetime.now().date(),pages_count=1,user_id=me.id)
+                    session.add(count_pages_per_day)
+                
+                if reading_book.last_reading_page < page_r.numberOfPage:
+                    reading_book.last_reading_page = page_r.numberOfPage
+                    await session.commit()
+                    return {"status_code":200, "detail":"Page is read"}
                 await session.commit()
-                return {"status_code":200, "detail":"Page is read"}
-            await session.commit()
-            return {"status_code":200, "detail":"You still read this book"}
+                return {"status_code":200, "detail":"You still read this book"}
         raise HTTPException(detail={"detail":"Page is not exist", "status_code":400}, status_code=400)
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
 
@@ -128,7 +133,7 @@ async def finish_book(book_id:int,me = Depends(get_current_user),session:AsyncSe
     
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
 
-
+# update target of reading book
 @app.put("/update_target")
 async def update_target(book_id:int,target_of_date:datetime.date,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
@@ -137,3 +142,7 @@ async def update_target(book_id:int,target_of_date:datetime.date,me = Depends(ge
         await session.commit()
         return True
     raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
+
+
+
+

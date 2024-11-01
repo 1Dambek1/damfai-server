@@ -11,13 +11,15 @@ from sqlalchemy.orm import selectinload
 
 from .running_models import Running, Status, Winner, Prize
 from .running_utils import get_active_running
-from .running_schema import RunningSchema, WinnerSchema, PrizeSchema,RankingSchema
+from .running_schema import RunningSchema, WinnerSchema, RankingSchema
 
 from ..get_current_me import  get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session, session
-from ..books.books_models import Book, Chapter, PageModel, Authors
+from ..books.books_models import Book, Chapter, PageModel, Authors, Rating
 from ..analytics.analytics_models import PagesPerDay
+
+from ..utils.common_schema import ShowBook
 
 from ..scheduler_connect import cancel_running_task
 app = APIRouter(prefix="/running", tags=["running"])
@@ -37,97 +39,102 @@ async def get_running(id_running:int, me = Depends(get_current_user),session:Asy
     running = await session.scalar(select(Running).options(selectinload(Running.prizes), selectinload(Running.winners)).where(Running.id == id_running))
     if running:
         return running
-    raise HTTPException(detail={"detail":"You are have not running", "status_code":400}, status_code=400)
+    raise HTTPException(detail={"detail":"This running is not exist", "status_code":400}, status_code=400)
 
 # places of active running
-@app.get("/running/place", response_model=RankingSchema)
+@app.get("/place")
 async def get_running_places(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-
-    ranked_users = (
+    top_users_query = (
         select(
             User.id,
             User.name,
             User.surname,
             User.running_points,
-            func.row_number().over(order_by=User.running_points.desc()).label("ranking")
+            func.row_number().over(order_by=User.running_points.desc()).label("place")
         )
         .order_by(User.running_points.desc())
         .limit(100)
     )
     
-    your_rank = (
+    user_rank_query = (
         select(
             User.id,
             User.name,
             User.surname,
             User.running_points,
-            func.row_number().over(order_by=User.running_points.desc()).label("ranking")
+            func.row_number().over(order_by=User.running_points.desc()).label("place")
         )
         .order_by(User.running_points.desc())
         .where(User.id == me.id)
     )
+
     
     # Выполняем запросы
-    your_rank = await session.execute(your_rank)
+    user_rank = await session.execute(user_rank_query)
+    rank_row = user_rank.fetchone()
     
-    rank_row = your_rank.fetchone()
+    result = await session.execute(top_users_query)
 
-    user_rank_dict = {
-            "id": rank_row[0],
-            "name": rank_row[1],
-            "surname": rank_row[2],
-            "running_points": rank_row[3],
-            "rank": rank_row[4]
-        }
+    user_rank = {
+        "id": rank_row[0],
+        "name": rank_row[1],
+        "surname": rank_row[2],
+        "runningPoints": rank_row[3],
+        "place": rank_row[4]
+    }
     
-    result = await session.execute(ranked_users)
-    
-    
-    # Преобразуем результат в словарь
-    top_100_users_dict = {
-        "top_100_users": [
+    top_users = [
         {
-            "id": user_id,
+            "id": id,
             "name": name,
             "surname": surname,
-            "running_points": running_points,
-            "rank": ranking
-        }
-        for user_id, name, surname, running_points, ranking in result
-    ],
-        "your_rank": user_rank_dict
-        }
-    
-    return top_100_users_dict
-    
-    
-# ________test________________
-@app.get("/authors")
-async def get_authors(session:AsyncSession = Depends(get_session)):
-    authors = await session.scalars(select(Authors).options(selectinload(Authors.books)))
-    return authors.all()
+            "runningPoints": running_points,
+            "place": place
+        } for id, name, surname, running_points, place in result
+    ]
 
-@app.post("/add_running", description="debug")
-async def add_running(author:str,days:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    running = await get_active_running(session=session)
+    # Преобразуем результат в словарь
+    leaderboard = {
+        "topUsers": top_users,
+        "userRank": user_rank
+    }
+    
+    return leaderboard
+    
+# get books by running
+@app.get("/books", response_model=list[ShowBook])
+async def get_books(session:AsyncSession = Depends(get_session)):
+    running = await get_active_running(session)
     if running:
-        raise HTTPException(detail={"detail":"You are already have running", "status_code":400}, status_code=400)
-    
-    author = await session.scalar(select(Authors).where(Authors.author == author))
-    if author:
-        start_running_date =datetime.datetime.now(datetime.timezone.utc)
-        start_running_date = start_running_date.astimezone(datetime.timezone.utc).replace(tzinfo=None)
-        
-        running = Running(status = Status.started, name_running="gool",start_running_date=start_running_date,end_running_date=start_running_date + datetime.timedelta(days=days))
-        running.author = author
-        running.author_name = author.author
+        query = (
+            select(
+                Book,
+                func.count(Chapter.id).label("chapters"),
+                func.coalesce(func.avg(Rating.rating), 0).label("average_rating")
+            )
+            .join(Book.chapters, isouter=True)  
+            .join(Book.ratings,  isouter=True)
+            .options(selectinload(Book.ganres))    
+            .group_by(Book.id)
+            .order_by(func.random())
+            .where(Book.author == running.author_name)
+        )
+        result = await session.execute(query)
+        dataset = []
+        for row in result.all():
+            book = row[0]  
+            average_rating = row.average_rating  
+            chapters = row.chapters  
+
+            book_dict = book.__dict__
+            book_dict["ganres"] = [ganre.ganre for ganre in book_dict["ganres"]]  
+            book_dict["ratings"] = average_rating  
+            book_dict["chapters"] = chapters  
+
+            dataset.append(book_dict)  
 
         
-        for i in range(10):
-            prize = Prize(place = i+1, chappi_tokens = 100*(10-1), running_id = running.id)
-            running.prizes.append(prize)
-        session.add(running)
-        await session.commit()
-        asyncio.create_task(cancel_running_task())
-        return True
+        return dataset
+    raise HTTPException(detail={"detail":"This running is not exist", "status_code":400}, status_code=400)
     
+

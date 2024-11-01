@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey
 
 from ..db import Base
 from ..books.books_models import Book
+from ..reading_books.booksRead_models import ReadingPage
 
 class FavouriteUser(Base):
     
@@ -22,3 +23,10 @@ class BookmarkUser(Base):
     user_id:Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
     page_id:Mapped[int] = mapped_column(ForeignKey("page_table.id"), primary_key=True)
     
+
+# class SumBookmarkUser(Base):
+    
+#     __tablename__ = "sum_bookmark_user_table"
+    
+#     user_id:Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
+#     page_id:Mapped[int] = mapped_column(ForeignKey("reading_page.id"), primary_key=True)

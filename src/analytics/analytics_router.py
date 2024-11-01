@@ -27,7 +27,7 @@ app = APIRouter(prefix="/analytics", tags=["analytics"])
 
 # ________________UPDATE ANALYTICS DATA____________________
 
-@app.put("/update_sped_words_per_minute")
+@app.put("/update_speed_words_per_minute")
 async def update_sped_words_per_minute(speed:float,me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     result = eval(me.words_per_minute)
     if speed < 30 or speed > 340:

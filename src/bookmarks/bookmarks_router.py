@@ -9,6 +9,7 @@ from ..get_current_me import  get_current_user
 from ..app_auth.auth_models import User
 from ..db import get_session
 from ..books.books_models import Chapter, PageModel
+from ..reading_books.booksRead_models import ReadingPage,Reading_Book
 
 from .bookmarks_schema import ShowBookmark, ShowFavourite
 from .bookmarsk_models import BookmarkUser, FavouriteUser
@@ -31,10 +32,10 @@ async def get_bookmarks(me = Depends(get_current_user),session:AsyncSession = De
             "author":i.chapter.book.author,
             "desc":i.chapter.book.desc,
             "writen_date":i.chapter.book.writen_date,
-            "age_of_book":i.chapter.book.age_of_book,
-            "id_current_chapter":i.chapter_id,
-            "current_page":i.id,
-            "current_number_of_page": i.numberOfPage
+            "ageOfBook":i.chapter.book.age_of_book,
+            "idCurrentChapter":i.chapter_id,
+            "currentPage":i.id,
+            "currentNumberOfPage": i.numberOfPage
         }
         dataset.append(data)
     return dataset
