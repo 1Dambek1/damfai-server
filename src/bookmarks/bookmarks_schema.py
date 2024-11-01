@@ -10,9 +10,9 @@ class ShowBookmark(BaseModel):
     writen_date: datetime.date
     age_of_book: int 
 
-    id_current_chapter: int
-    current_page: int  
-    current_number_of_page: int
+    idCurrentChapter: int
+    currentPage: int  
+    currentNumberOfPage: int
 
 
 class ShowFavourite(BaseModel):

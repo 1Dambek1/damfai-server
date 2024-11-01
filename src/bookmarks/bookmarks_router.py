@@ -31,10 +31,10 @@ async def get_bookmarks(me = Depends(get_current_user),session:AsyncSession = De
             "author":i.chapter.book.author,
             "desc":i.chapter.book.desc,
             "writen_date":i.chapter.book.writen_date,
-            "age_of_book":i.chapter.book.age_of_book,
-            "id_current_chapter":i.chapter_id,
-            "current_page":i.id,
-            "current_number_of_page": i.numberOfPage
+            "ageOfBook":i.chapter.book.age_of_book,
+            "idCurrentChapter":i.chapter_id,
+            "currentPage":i.id,
+            "currentNumberOfPage": i.numberOfPage
         }
         dataset.append(data)
     return dataset
