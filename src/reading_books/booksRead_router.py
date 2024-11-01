@@ -146,3 +146,12 @@ async def update_target(book_id:int,target_of_date:datetime.date,me = Depends(ge
 
 
 
+
+@app.get("/target/{book_id}")
+async def get_target(book_id:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+    r_book = await session.scalar(select(Reading_Book).where(Reading_Book.user_id == me.id, Reading_Book.book_id == book_id))
+    if r_book:
+        return {"target_of_date":r_book.target_of_date, "book_id": book_id}
+    
+    raise HTTPException(detail={"detail":"Reading book is not exist", "status_code":400}, status_code=400)
+   
