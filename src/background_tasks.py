@@ -51,7 +51,6 @@ async def finish_running_task():
                     if prize:
                         user = await session.scalar(select(User).where(User.id == user["id"]))
                         user.balance += prize.chappi_tokens
-                        user.running_points = 0
                         winner = Winner(user_id=user.id, prize_id=prize.id, running_id=running.id)
                         session.add(winner)
                 await session.commit()
