@@ -43,7 +43,7 @@
 - Далее введите в терминал следующую команду и ждите запуска:
 
 ```bash
-docker compose up --build
+	docker compose up --build
 ```
 
   
