@@ -2,17 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
-<<<<<<< HEAD
-from src.get_current_me import  get_current_user
-from src.db import get_session
-from src.themes.themes_models import Theme
-=======
 from ..get_current_me import  get_current_user, get_current_id
 from ..db import get_session
 from ..app_auth.auth_models import User
 from ..themes.themes_models import Theme
->>>>>>> a531380f87ea1ca8cdbf0d2d8b7cc78cbdc73b77
 
 from .shop_schema import  ShowTheme
 
