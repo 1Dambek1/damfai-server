@@ -1,6 +1,4 @@
 /venv/
 /db_data/
 /__pycache__/
-celery_connection
-parse/main.py
-parse/dataset.json
+damfai-server

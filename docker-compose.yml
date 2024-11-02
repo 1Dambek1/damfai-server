@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   app:
@@ -11,8 +11,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./src/images:/app/src/images
-
+      - ./server/src/images:/app/server/src/images
 
   db:
     image: postgres
@@ -24,3 +23,12 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data/
 
+  bot-app:
+    build: .
+    container_name: bot_app
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - 4200:4200

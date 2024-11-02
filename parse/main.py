@@ -1,15 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
-
 import datetime
-
 import random
-
 import json
-
 from langchain.chat_models.gigachat import GigaChat
 from sentence_transformers import SentenceTransformer
-
 class Ganre:
     id:int
     ganre:str 
@@ -102,31 +97,26 @@ data = [
     generate_book(1334,45),
     generate_book(107, 15),
     generate_book(479, 19),
-
-
     generate_book(480, 7),
     generate_book(973, 4),
     generate_book(479, 19),
     generate_book(472, 4),
     generate_book(1022, 13),
-
     generate_book(1180, 14),
     generate_book(1545, 6),
     generate_book(1201, 23),
     generate_book(1762,6),
     generate_book(1336, 38),
-
     generate_book(1023, 12),
     generate_book(1484, 9),
     generate_book(1150, 3),
     generate_book(1006, 25),
     generate_book(7, 12),
-
     generate_book(1009, 28),
     generate_book(8, 8),
     generate_book(1088, 47),
+    generate_book(1070, 22),
     generate_book(1647, 46),
-
     generate_book(1198, 13),
     generate_book(475, 46),
     generate_book(67,17 ),
