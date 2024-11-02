@@ -46,5 +46,35 @@ async def get_extension_by_id(extension_id: int, session:AsyncSession = Depends(
 
 
 
+@app.post('/add/user/extensions/{extension_id}', response_model=ShowExtension)
+async def add_extension_to_user(extension_id: int, user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
+    ex = await session.scalar(select(Extension).where(Extension.id == extension_id))
+	
+    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.extensions)))
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+    if not ex:
+        raise HTTPException(status_code=404, detail="extension not found")
+    
+    if ex not in user.extensions:
+        user.extensions.append(ex)
+    await session.commit()
+    await session.refresh(user)
+    return ex
+@app.delete('/remove/user/extensions/{extension_id}')
+async def remove_extension_to_user(extension_id: int, user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
+    ex = await session.scalar(select(Extension).where(Extension.id == extension_id))
+	
+    user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.extensions)))
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+    if not ex:
+        raise HTTPException(status_code=404, detail="extension not found")
+    if ex in user.extensions:
+        user.extensions.remove(ex)
+    await session.commit()
+    await session.refresh(user)
+    return True
 
 	

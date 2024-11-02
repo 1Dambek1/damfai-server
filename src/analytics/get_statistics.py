@@ -84,8 +84,8 @@ async def get_common_statistics_func(user: User, session: AsyncSession) -> dict:
         books_count = await session.scalar(select(func.count(Reading_Book.book_id)).where(Reading_Book.is_read))
         pages_count = 0
         
-        for i in user.pages_per_day:
-            pages_count += i.pages_count
+        for page in user.pages_per_day:
+            pages_count += page.pages_count
         minutes_per_day = await session.scalar(select(func.avg(MinutesPerDay.minutes_count)).where(MinutesPerDay.user_id == user_id))
         year = datetime.datetime.now().date().year
         month = datetime.datetime.now().date().month
@@ -127,15 +127,15 @@ async def get_books_last_12_months_func(me:User, session:AsyncSession) -> dict:
     "November":0,    
     "December":0
 }
-    for i in last_books:
-        dataset[monthes[i.finish_to_read.month]] += 1
+    for book in last_books:
+        dataset[monthes[book.finish_to_read.month]] += 1
         
     return dataset
 
 # get_favourite_ganres
 async def get_favourite_ganres_func(me:User, session:AsyncSession) -> dict:
     ganres = await session.scalars(select(Ganre))
-    ganres_data = {i.ganre: 0 for i in ganres}
+    ganres_data = {ganre.ganre: 0 for ganre in ganres}
 
     user = await session.scalar(select(User)
                                 .where(User.id == me.id)

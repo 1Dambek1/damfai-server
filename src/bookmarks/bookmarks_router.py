@@ -24,17 +24,17 @@ app = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 async def get_bookmarks(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     user = await session.scalar(select(User).where(User.id == me.id).options(selectinload(User.bookmarks_on_page).selectinload(PageModel.chapter).selectinload(Chapter.book)))
     dataset  = []
-    for i in user.bookmarks_on_page:
+    for bookmark in user.bookmarks_on_page:
         data = {
-            "id":i.chapter.book.id,
-            "title":i.chapter.book.title,
-            "author":i.chapter.book.author,
-            "desc":i.chapter.book.desc,
-            "writen_date":i.chapter.book.writen_date,
-            "ageOfBook":i.chapter.book.age_of_book,
-            "idCurrentChapter":i.chapter_id,
-            "currentPage":i.id,
-            "currentNumberOfPage": i.numberOfPage
+            "id":bookmark.chapter.book.id,
+            "title":bookmark.chapter.book.title,
+            "author":bookmark.chapter.book.author,
+            "desc":bookmark.chapter.book.desc,
+            "writen_date":bookmark.chapter.book.writen_date,
+            "ageOfBook":bookmark.chapter.book.age_of_book,
+            "idCurrentChapter":bookmark.chapter_id,
+            "currentPage":bookmark.id,
+            "currentNumberOfPage": bookmark.numberOfPage
         }
         dataset.append(data)
     return dataset

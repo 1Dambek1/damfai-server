@@ -64,7 +64,7 @@ async def generate_questions(book_id:int , webscoket:WebSocket, session:AsyncSes
     if book:
         text = f"Создай 2 вопроса о книге /'{book.title}'/ автора /'{book.author}'/ {make_question_about_book_system}"
         context = [SystemMessage(content=text)]
-        quest = []
+        making_questions = []
         new_text = ""
         if book:
             await webscoket.accept()
@@ -73,17 +73,18 @@ async def generate_questions(book_id:int , webscoket:WebSocket, session:AsyncSes
                     data = await webscoket.receive_text()
 
                     for i in range(round(int(data)/2+0.4)):
-                        await webscoket.send_text(new_text)
+                        
                         result = ((await active_model(context=context, model=model_for_questions)).content)
                         await webscoket.send_text(result)
 
                         result = eval(result)
 
-                        quest.append(result[0]["question"])
-                        quest.append(result[1]["question"])
-                        new_text = f"{text} Мне нужны вопросы не похожие на эти вопросы : {' ,'.join(quest)}"
+                        making_questions.append(result[0]["question"])
+                        making_questions.append(result[1]["question"])
+                        
+                        new_text = f"{text} Мне нужны вопросы не похожие на эти вопросы : {' ,'.join(making_questions)}"
+                        
                         context = [SystemMessage(content=new_text)]
-
             except Exception:
                 await webscoket.close()
     raise HTTPException(detail={"status_code":403, "detail":"You do not read this book"}, status_code=403)
@@ -126,8 +127,7 @@ async def sum_text(book_id: int, websocket: WebSocket, session: AsyncSession = D
                         SystemMessage(content=f"Выполни функцию сумаризации до максимум 150 слов убрав лишние фразы. Вот текст, который нужно сжать: '{page.text}'")
                     ]
 
-                    # Вызываем модель
-                    result = model_for_zip.invoke(context)  # Убедитесь, что model_for_zip вызывает асинхронно
+                    result = model_for_zip.invoke(context) 
                     await websocket.send_json({"numberOfPage": last_page, "text": result.content,"chapter_id":page.chapter_id})
 
                     page_record = ReadingPage(reading_book_id=r_book.id_connect, text=result.content, numberOfPage=last_page, chapter_id=page.chapter_id)
