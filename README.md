@@ -2,11 +2,11 @@
 ### Репозитории проекта
 
 
-- [Damfai server](https://github.com/1Dambek1/damfai-server)
+- [Damfai server](https://github.com/1Dambek1/damfai-server) - backend, серверная часть
 
-- [Damfai client](https://github.com/shms0mms/damfai-client)
+- [Damfai client](https://github.com/shms0mms/damfai-client) - frontend, визуальная часть
 
-- [Damfai telegram bot](https://github.com/shms0mms/damfai-bot)
+- [Damfai telegram bot](https://github.com/shms0mms/damfai-bot) - tg bot
 
   
 # Интерфейс приложения
