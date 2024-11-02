@@ -4,9 +4,9 @@ from sqlalchemy.orm import  Mapped, mapped_column, relationship
 
 from typing import TYPE_CHECKING
 
-from ..db import Base
+from src.db import Base
 if TYPE_CHECKING:
-    from ..app_auth.auth_models import User
+    from src.app_auth.auth_models import User
 
 
 class Theme(Base):
@@ -25,8 +25,6 @@ class Theme(Base):
         secondary="theme_user_table"  
     )
   
-
-
 class ThemeUser(Base):
     
     __tablename__ = "theme_user_table"

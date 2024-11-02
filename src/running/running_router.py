@@ -1,31 +1,32 @@
 
-import asyncio
-import datetime
-import logging
-
-from fastapi import APIRouter, Depends, HTTPException, logger
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
-from .running_models import Running, Status, Winner, Prize
+from .running_models import Running
 from .running_utils import get_active_running
-from .running_schema import RunningSchema, WinnerSchema, RankingSchema
+from .running_schema import RunningSchema,RankingSchema
 
-from ..get_current_me import  get_current_user
-from ..app_auth.auth_models import User
-from ..db import get_session, session
-from ..books.books_models import Book, Chapter, PageModel, Authors
-from ..analytics.analytics_models import PagesPerDay
+from src.get_current_me import  get_current_user
+from src.app_auth.auth_models import User
+from src.db import get_session
+from src.books.books_models import Book, Chapter, Rating
 
-from ..scheduler_connect import cancel_running_task
+from src.utils.common_schema import ShowBook
+
 app = APIRouter(prefix="/running", tags=["running"])
 
 
 # get active running with prizes
+<<<<<<< HEAD
 @app.get("/active", response_model=RunningSchema)
 async def get_running(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+=======
+@app.get("/acitve_running", response_model=RunningSchema)
+async def acitve_running(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+>>>>>>> 9c7160b29ba13c8c2c9f0c3d413b58fd164c0c19
     running = await get_active_running(session=session)
     if running:
         return running
@@ -33,14 +34,18 @@ async def get_running(me = Depends(get_current_user),session:AsyncSession = Depe
 
 # get running by id
 @app.get("/running/{id_running}", response_model=RunningSchema)
-async def get_running(id_running:int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
+async def get_running_id(id_running:int, me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     running = await session.scalar(select(Running).options(selectinload(Running.prizes), selectinload(Running.winners)).where(Running.id == id_running))
     if running:
         return running
-    raise HTTPException(detail={"detail":"You are have not running", "status_code":400}, status_code=400)
+    raise HTTPException(detail={"detail":"This running is not exist", "status_code":400}, status_code=400)
 
 # places of active running
+<<<<<<< HEAD
 @app.get("/leaderboard", response_model=RankingSchema)
+=======
+@app.get("/place", response_model=RankingSchema)
+>>>>>>> 9c7160b29ba13c8c2c9f0c3d413b58fd164c0c19
 async def get_running_places(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     top_users_query = (
         select(
@@ -99,34 +104,40 @@ async def get_running_places(me:User = Depends(get_current_user),session:AsyncSe
     
     return leaderboard
     
-    
-# ________test________________
-@app.get("/authors")
-async def get_authors(session:AsyncSession = Depends(get_session)):
-    authors = await session.scalars(select(Authors).options(selectinload(Authors.books)))
-    return authors.all()
-
-@app.post("/add_running", description="debug")
-async def add_running(author:str,days:int,me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
-    running = await get_active_running(session=session)
+# get books by running
+@app.get("/books", response_model=list[ShowBook])
+async def get_books(session:AsyncSession = Depends(get_session)):
+    running = await get_active_running(session)
     if running:
-        raise HTTPException(detail={"detail":"You are already have running", "status_code":400}, status_code=400)
-    
-    author = await session.scalar(select(Authors).where(Authors.author == author))
-    if author:
-        start_running_date =datetime.datetime.now(datetime.timezone.utc)
-        start_running_date = start_running_date.astimezone(datetime.timezone.utc).replace(tzinfo=None)
-        
-        running = Running(status = Status.started, name_running="gool",start_running_date=start_running_date,end_running_date=start_running_date + datetime.timedelta(days=days))
-        running.author = author
-        running.author_name = author.author
+        query = (
+            select(
+                Book,
+                func.count(Chapter.id).label("chapters"),
+                func.coalesce(func.avg(Rating.rating), 0).label("average_rating")
+            )
+            .join(Book.chapters, isouter=True)  
+            .join(Book.ratings,  isouter=True)
+            .options(selectinload(Book.ganres))    
+            .group_by(Book.id)
+            .order_by(func.random())
+            .where(Book.author == running.author_name)
+        )
+        result = await session.execute(query)
+        dataset = []
+        for row in result.all():
+            book = row[0]  
+            average_rating = row.average_rating  
+            chapters = row.chapters  
+
+            book_dict = book.__dict__
+            book_dict["ganres"] = [ganre.ganre for ganre in book_dict["ganres"]]  
+            book_dict["ratings"] = average_rating  
+            book_dict["chapters"] = chapters  
+
+            dataset.append(book_dict)  
 
         
-        for i in range(10):
-            prize = Prize(place = i+1, chappi_tokens = 100*(10-1), running_id = running.id)
-            running.prizes.append(prize)
-        session.add(running)
-        await session.commit()
-        asyncio.create_task(cancel_running_task())
-        return True
+        return dataset
+    raise HTTPException(detail={"detail":"This running is not exist", "status_code":400}, status_code=400)
     
+

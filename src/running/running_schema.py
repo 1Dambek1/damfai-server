@@ -1,24 +1,22 @@
 from pydantic import BaseModel
-from typing import Annotated
 import datetime
 
 from .running_models import Status
 
-from ..app_auth.auth_schema import ShowUser 
+from src.app_auth.auth_schema import ShowUser 
 
 class PrizeSchema(BaseModel):
     
-    place:int
-    chappi_tokens:int
+    place: int
+    chappi_tokens: int
 
 class WinnerSchema(BaseModel):
     
-    prize:PrizeSchema
+    prize: PrizeSchema
     user: ShowUser
     
-
 class RunningSchema(BaseModel):
-    id:int
+    id: int
     name_running: str
     author_name: str
     start_running_date: datetime.datetime | None
@@ -29,7 +27,6 @@ class RunningSchema(BaseModel):
 
     winners:list[WinnerSchema] | None
     prizes:list[PrizeSchema] | None
-
 
 class RankedUser(BaseModel):
     id: int

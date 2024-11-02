@@ -2,8 +2,8 @@
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from sqlalchemy import ForeignKey
 
-from ..db import Base
-from ..books.books_models import Book
+from src.db import Base
+from src.books.books_models import Book
 
 class FavouriteUser(Base):
     
@@ -22,3 +22,4 @@ class BookmarkUser(Base):
     user_id:Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
     page_id:Mapped[int] = mapped_column(ForeignKey("page_table.id"), primary_key=True)
     
+

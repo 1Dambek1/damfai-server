@@ -3,3 +3,5 @@ __pycache__
 db_data
 /venv/
 pyproject.toml
+celery_connection
+parse/main.py
