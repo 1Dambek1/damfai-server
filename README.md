@@ -1,3 +1,14 @@
+  
+### Репозитории проекта
+
+
+- [Damfai server](https://github.com/1Dambek1/damfai-server)
+
+- [Damfai client](https://github.com/shms0mms/damfai-client)
+
+- [Damfai telegram bot](https://github.com/shms0mms/damfai-bot)
+
+  
 # Интерфейс приложения
 
 ### И в части второго этапа мы реализовали:
@@ -52,13 +63,3 @@
   
 - Теперь сервер запущен на http://localhost:8000
 
-  
-### Репозитории проекта
-
-  
-
-- [Damfai server](https://github.com/1Dambek1/damfai-server)
-
-- [Damfai client](https://github.com/shms0mms/damfai-client)
-
-- [Damfai telegram bot](https://github.com/shms0mms/damfai-bot)
