@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException, WebSocket
 
 from langchain.schema import HumanMessage, SystemMessage
@@ -6,13 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload,joinedload
 
-from ..books.books_models import Book, Chapter, PageModel
-from ..app_auth.auth_utils.utils import valid_access_token
-from ..db import get_session
-from ..ai_connect import model_for_questions , model_for_zip,model_for_user_questions
-from ..reading_books.booksRead_models import Reading_Book, ReadingPage
-from ..get_current_me import get_current_user
+from src.books.books_models import Book, Chapter, PageModel
+from src.app_auth.auth_utils.utils import valid_access_token
+from src.ai_connect import model_for_questions , model_for_zip,model_for_user_questions
+from src.reading_books.booksRead_models import Reading_Book, ReadingPage
+from src.get_current_me import get_current_user
 
+from src.db import get_session
 
 
 
@@ -32,7 +33,6 @@ async def zip_small_text(text:str,me = Depends(get_current_user),session:AsyncSe
     result = model_for_zip.invoke(context)
     return result.content
 
-
 # ask question websocket(12+- секунд)
 @app.websocket("/ws/ask_question/{book_id}")
 async def ask_question_ws(book_id:int,websocket: WebSocket,session:AsyncSession = Depends(get_session)):
@@ -51,13 +51,11 @@ async def ask_question_ws(book_id:int,websocket: WebSocket,session:AsyncSession 
             context.append(HumanMessage(content=data)) 
             result = await active_model(context, model=model_for_user_questions)
             await websocket.send_text(str(result.content))
-            
             context = [SystemMessage(f"Дай ответ на следующий вопрос обращаясь только к книге '{book.title}' автора '{book.author}'")]
             context.append(HumanMessage(content=f"последний ответ был: '{result.content}' на вопрос: '{data}'")) 
 
-    except Exception as e:
+    except Exception:
         await websocket.close() 
-
 
 # generate questions(+- 20 секунд)
 @app.websocket("/ws/generate_questions/{book_id}")
@@ -66,7 +64,7 @@ async def generate_questions(book_id:int , webscoket:WebSocket, session:AsyncSes
     if book:
         text = f"Создай 2 вопроса о книге /'{book.title}'/ автора /'{book.author}'/ {make_question_about_book_system}"
         context = [SystemMessage(content=text)]
-        quest = []
+        making_questions = []
         new_text = ""
         if book:
             await webscoket.accept()
@@ -75,22 +73,23 @@ async def generate_questions(book_id:int , webscoket:WebSocket, session:AsyncSes
                     data = await webscoket.receive_text()
 
                     for i in range(round(int(data)/2+0.4)):
-                        await webscoket.send_text(new_text)
+                        
                         result = ((await active_model(context=context, model=model_for_questions)).content)
                         await webscoket.send_text(result)
 
                         result = eval(result)
 
-                        quest.append(result[0]["question"])
-                        quest.append(result[1]["question"])
-                        new_text = f"{text} Мне нужны вопросы не похожие на эти вопросы : {' ,'.join(quest)}"
+                        making_questions.append(result[0]["question"])
+                        making_questions.append(result[1]["question"])
+                        
+                        new_text = f"{text} Мне нужны вопросы не похожие на эти вопросы : {' ,'.join(making_questions)}"
+                        
                         context = [SystemMessage(content=new_text)]
-
-            except Exception as e:
+            except Exception:
                 await webscoket.close()
     raise HTTPException(detail={"status_code":403, "detail":"You do not read this book"}, status_code=403)
                 
-
+# sum all text from book
 @app.websocket("/ws/sum_text/book/{book_id}")
 async def sum_text(book_id: int, websocket: WebSocket, session: AsyncSession = Depends(get_session)):
     try:
@@ -125,11 +124,10 @@ async def sum_text(book_id: int, websocket: WebSocket, session: AsyncSession = D
                 if page:
                     # Создаем контекст с более конкретной инструкцией для сжатия
                     context = [
-                        SystemMessage(content=f"Выполни функцию сумаризации до максимум 150 слов убрав лишние фразы. Вот текст, который нужно сжать: '{page.text}'")
+                        SystemMessage(content=f"Выполни функцию сумаризации до максимум 310 слов убрав лишние фразы. Вот текст, который нужно сжать: '{page.text}'")
                     ]
 
-                    # Вызываем модель
-                    result = model_for_zip.invoke(context)  # Убедитесь, что model_for_zip вызывает асинхронно
+                    result = model_for_zip.invoke(context) 
                     await websocket.send_json({"numberOfPage": last_page, "text": result.content,"chapter_id":page.chapter_id})
 
                     page_record = ReadingPage(reading_book_id=r_book.id_connect, text=result.content, numberOfPage=last_page, chapter_id=page.chapter_id)
@@ -140,6 +138,6 @@ async def sum_text(book_id: int, websocket: WebSocket, session: AsyncSession = D
                     break
         await websocket.close()
 
-    except Exception as e:
+    except Exception:
         await session.commit()
         await websocket.close()

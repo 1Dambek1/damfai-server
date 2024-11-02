@@ -14,10 +14,9 @@ class ShowBookmark(BaseModel):
     currentPage: int  
     currentNumberOfPage: int
 
-
 class ShowFavourite(BaseModel):
 
-  id:int
+  id: int
   title: str
   author: str
   desc: str

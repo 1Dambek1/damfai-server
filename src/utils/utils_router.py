@@ -2,87 +2,28 @@
 import datetime
 import json
 import pathlib
-
 import asyncio
-import datetime
-import logging
-from ..scheduler_connect import cancel_running_task
-from fastapi import APIRouter, Depends, HTTPException, logger
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, select
-from sqlalchemy.orm import selectinload
+from fastapi import APIRouter,HTTPException
 
-from ..running.running_models import Running, Status, Winner, Prize
-from ..running.running_utils import get_active_running
-from ..running.running_schema import RunningSchema, WinnerSchema, PrizeSchema,RankingSchema
-
-from ..get_current_me import  get_current_user
-from ..app_auth.auth_models import User
-from ..db import get_session, session
-from ..books.books_models import Book, Chapter, PageModel, Authors, Rating
-from ..analytics.analytics_models import PagesPerDay
-
-from ..utils.common_schema import ShowBook
-
-import json
-import pathlib
-from sqlalchemy.orm import selectinload
-from fastapi import APIRouter, Depends, HTTPException
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-
-from ..get_current_me import get_current_admin, get_current_id
-from ..db import get_session
-from ..app_auth.auth_models import User
-
-from ..extensions.extensions_models import Extension
-from ..extensions.extensions_schema import CreateExtension, ShowExtension
-import json
-import pathlib
-from sqlalchemy.orm import selectinload
-from fastapi import APIRouter, Depends, HTTPException
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-
-from ..get_current_me import get_current_admin, get_current_user, get_current_id
-from ..db import get_session
-from ..app_auth.auth_models import User
-
-from ..themes.themes_models import Theme
-from ..themes.themes_schema import CreateTheme, ShowTheme
-
-
-from fastapi import APIRouter, Depends
-
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from ..db import Base, engine, get_session
-from ..books.books_models import Book, Ganre, Chapter, PageModel, Authors, EmoteEnum
 from random import randint
 
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from src.running.running_models import Running, Status, Prize
+from src.running.running_utils import get_active_running
+from src.themes.themes_models import Theme
+from src.extensions.extensions_models import Extension
+from src.books.books_models import Book, Ganre, Chapter, PageModel, Authors, EmoteEnum
+from src.background_tasks import cancel_running_task
+
+
+from src.db import Base, engine
+
+
 app = APIRouter(prefix="/utils", tags=["utils"])
-
-
-    
-
-async def create_db():
-    
-    async with engine.begin() as conn:
-        try:
-            await conn.run_sync(Base.metadata.drop_all)
-        except:
-            pass
-        await  conn.run_sync(Base.metadata.create_all)
-
-        
-# @app.get("/create_db", description="debug")
-async def db():
-    await create_db()
-    return True
 
 ganres = ["Роман",
           "Мистика",
@@ -105,6 +46,25 @@ ganres = ["Роман",
 
           ]
 
+# create_db
+async def create_db():
+    
+    async with engine.begin() as conn:
+        try:
+            await conn.run_sync(Base.metadata.drop_all)
+        except:
+            pass
+        await  conn.run_sync(Base.metadata.create_all)
+
+    # 
+
+# db
+# @app.get("/create_db", description="debug")
+async def db():
+    await create_db()
+    return True
+
+# create ganres
 # @app.get("/parse/ganres", description="debug")
 async def parse_ganres(session:AsyncSession):
     for i in ganres:
@@ -113,9 +73,7 @@ async def parse_ganres(session:AsyncSession):
     await session.commit()
     return True
 
-
-
-
+# create books
 # @app.get("/parse/books", description="debug")
 async def parse_books(session:AsyncSession ):
     BASE_DIR  = pathlib.Path(__file__).parent.parent.parent.parent
@@ -165,6 +123,7 @@ async def parse_books(session:AsyncSession ):
         await session.commit()
         return True
 
+# create themes
 # @app.post('/create/all')
 async def create_themes(session:AsyncSession): 
 	BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -184,8 +143,7 @@ async def create_themes(session:AsyncSession):
 
 	return True
 
-
-# create extensions(DEBUG)
+# create extensions
 # @app.post('/create/all', description="debug")
 async def create_extensions(session:AsyncSession): 
 	BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -203,9 +161,7 @@ async def create_extensions(session:AsyncSession):
 
 	return True
 
-
-
-
+# create current running
 # @app.post("/add_running", description="debug")
 async def add_running(author:str,days:int,session:AsyncSession):
     running = await get_active_running(session=session)

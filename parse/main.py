@@ -1,8 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
+
 import datetime
+
 import random
+
 import json
+
+from langchain.chat_models.gigachat import GigaChat
+from sentence_transformers import SentenceTransformer
+
 class Ganre:
     id:int
     ganre:str 
@@ -133,8 +140,7 @@ with open("parse/dataset.json", "w", encoding='utf-8') as f2:
     
     
     
-from langchain.chat_models.gigachat import GigaChat
-from sentence_transformers import SentenceTransformer
+
 
 model_for_zip = GigaChat(credentials="NGViMzk4ZGMtNTdhYS00MWU1LTkzM2MtMDlmMGE0NmMyODZkOjFmNDRlMDQyLTI1MDUtNGViZi1hZGVlLWYwZWM2MzgyOGM2MA==", verify_ssl_certs=False, scope="GIGACHAT_API_PERS", streaming=True, model="GigaChat" )
 model = SentenceTransformer('sentence-transformers/paraphrase-xlm-r-multilingual-v1')

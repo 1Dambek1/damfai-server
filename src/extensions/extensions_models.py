@@ -4,9 +4,9 @@ from sqlalchemy.orm import  Mapped, mapped_column, relationship
 
 from typing import  TYPE_CHECKING
 
-from ..db import Base
+from src.db import Base
 if TYPE_CHECKING:
-    from ..app_auth.auth_models import User
+    from src.app_auth.auth_models import User
 
     
 class Extension(Base):
@@ -23,8 +23,6 @@ class Extension(Base):
         uselist=True,
         secondary="extension_user_table"  
     )
-  
-
 
 class ExtensionUser(Base):
     

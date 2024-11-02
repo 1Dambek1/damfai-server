@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY req.txt .
 
-RUN pip install --no-dependencies transformers
+RUN pip install --no-dependencies -U transformers  
 
 RUN pip install filelock huggingface-hub numpy packaging pyyaml regex requests tqdm sacremoses
 

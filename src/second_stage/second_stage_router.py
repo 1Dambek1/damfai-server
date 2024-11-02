@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter
 
-from ..ai_connect import model_sum, tokenizer, device
+from src.ai_connect import model_sum, tokenizer, device
 
 from .second_stage_schema import SumTextSchema, LevelOfSumTextSchema,LangOfSumTextSchema
 

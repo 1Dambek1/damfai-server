@@ -2,8 +2,7 @@
 from fastapi_filter.contrib.sqlalchemy import Filter
 from typing import Optional
 
-from ..books.books_models import Book
-
+from src.books.books_models import Book
 
 class BookFilter(Filter):
     

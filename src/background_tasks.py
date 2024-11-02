@@ -2,8 +2,8 @@
 import asyncio
 
 import datetime
+
 from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func
 
 from .db import session as connect
@@ -58,7 +58,6 @@ async def finish_running_task():
                     
                 return True
     return False
-
 
 async def cancel_running_task():
     while True:
