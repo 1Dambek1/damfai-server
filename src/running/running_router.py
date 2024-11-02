@@ -24,7 +24,7 @@ app = APIRouter(prefix="/running", tags=["running"])
 
 
 # get active running with prizes
-@app.get("/acitve_running", response_model=RunningSchema)
+@app.get("/active", response_model=RunningSchema)
 async def get_running(me = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     running = await get_active_running(session=session)
     if running:
@@ -40,7 +40,7 @@ async def get_running(id_running:int, me = Depends(get_current_user),session:Asy
     raise HTTPException(detail={"detail":"You are have not running", "status_code":400}, status_code=400)
 
 # places of active running
-@app.get("/running/place", response_model=RankingSchema)
+@app.get("/leaderboard", response_model=RankingSchema)
 async def get_running_places(me:User = Depends(get_current_user),session:AsyncSession = Depends(get_session)):
     top_users_query = (
         select(
