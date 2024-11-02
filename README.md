@@ -10,7 +10,7 @@
 
 ### Код для второго этапа:
 
-1. Подключение и скачивание модели 'utrobinmv/t5_summary_en_ru_zh_base_2048' с [Hugging Face](https://huggingface.co/) происходит в https://github.com/1Dambek1/damfai-server/blob/main/src/ai_connect.py
+1. Подключение и скачивание модели 'utrobinmv/t5_summary_en_ru_zh_base_2048' с [Hugging Face](https://huggingface.co/) происходит в [ai_connect.py](https://github.com/1Dambek1/damfai-server/blob/main/src/ai_connect.py)
 2. Работа и сжатие самого текста происходит в папке second_stage c файлами:
 	- [second_stage_router_router](https://github.com/1Dambek1/damfai-server/blob/main/src/second_stage/second_stage_router.py) - click
 	- [second_stage_router_schema](https://github.com/1Dambek1/damfai-server/blob/main/src/second_stage/second_stage_schema.py) - click
