@@ -124,7 +124,7 @@ async def sum_text(book_id: int, websocket: WebSocket, session: AsyncSession = D
                 if page:
                     # Создаем контекст с более конкретной инструкцией для сжатия
                     context = [
-                        SystemMessage(content=f"Выполни функцию сумаризации до максимум 150 слов убрав лишние фразы. Вот текст, который нужно сжать: '{page.text}'")
+                        SystemMessage(content=f"Выполни функцию сумаризации до максимум 310 слов убрав лишние фразы. Вот текст, который нужно сжать: '{page.text}'")
                     ]
 
                     result = model_for_zip.invoke(context) 
