@@ -64,7 +64,7 @@ def find_most_similar(texts:list[str], candidate_texts:list[Book]):
                     "desc":candidate.desc,
                     "writen_date":candidate.writen_date,
                     "age_of_book":candidate.age_of_book,
-                    "similarity":0,
+                    "similarity":1,
                     "ganres":[i.ganre for i in candidate.ganres],
                     "ratings":rate}
         texts.append(book)
