@@ -50,4 +50,24 @@ def find_most_similar(texts:list[str], candidate_texts:list[Book]):
 
         # most_similar_index = similarities.index(max(similarities))
         return similarities
-    return candidate_texts
+    texts= []
+    for candidate in candidate_texts:
+        sum_rating = 0 
+        if len(candidate.ratings)>0:
+            for i2 in candidate.ratings: 
+                sum_rating += i2.rating
+            rate = sum_rating/len(candidate.ratings)
+        else:
+            rate = 0
+        book = {"id":candidate.id,
+                    "title":candidate.title,
+                    "author":candidate.author,
+                    "desc":candidate.desc,
+                    "writen_date":candidate.writen_date,
+                    "age_of_book":candidate.age_of_book,
+                    "similarity":1,
+                    "ganres":[i.ganre for i in candidate.ganres],
+                    "ratings":rate}
+        texts.append(book)
+
+    return texts
