@@ -32,8 +32,8 @@ app = APIRouter(prefix="/recommendations", tags=["recommendations"])
 async def per_ganre(session:AsyncSession = Depends(get_session)):
     ganres = (await session.scalars(select(Ganre).options(selectinload(Ganre.books)).order_by(func.random()).limit(5))).all()
     books = []
-    for i in ganres:
-            books.append({f"{i.ganre}":i.books})
+    for ganre in ganres:
+            books.append({f"{ganre.ganre}":ganre.books})
     return books
 
 # search book per author(redact)
@@ -41,8 +41,8 @@ async def per_ganre(session:AsyncSession = Depends(get_session)):
 async def per_author(session:AsyncSession = Depends(get_session)):
     authors = (await session.scalars(select(Authors).options(selectinload(Authors.books)).order_by(func.random()).limit(3))).all()
     books = []
-    for i in authors:
-            books.append({f"{i.author}":i.books})
+    for author in authors:
+            books.append({f"{author.author}":author.books})
     return books
 
 # search book(redact)
@@ -58,7 +58,13 @@ async def get_reccomendations(session:AsyncSession = Depends(get_session), user_
         texts_rate = [book.book.zip_text for book in rate_books]
         texts = list(set(texts_select + texts_rate))
         
-        canditate_books = await session.scalars(select(Book).where(Book.id.not_in([i.book_id for i in select_books]+[i.book_id for i in rate_books])).options(selectinload(Book.ganres), selectinload(Book.ratings)).order_by(func.random()))
+        canditate_books = await session.scalars(select(Book)
+                                                .where(Book
+                                                       .id
+                                                       .not_in
+                                                       ([s_book.book_id for s_book in select_books]+[r_book.book_id for r_book in rate_books]))
+                                                .options(selectinload(Book.ganres), selectinload(Book.ratings))
+                                                .order_by(func.random()))
         
         return find_most_similar(texts=texts,
                                 candidate_texts=canditate_books.all())

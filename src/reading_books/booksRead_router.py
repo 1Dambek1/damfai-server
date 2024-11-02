@@ -49,36 +49,36 @@ async def get_reading_books(me = Depends(get_current_user),session:AsyncSession 
     if reading_books:
         dataset = []
         
-        for i in reading_books.all():
+        for book in reading_books.all():
         # count progress
             all_pages = 0
             progress  = 0
-            last_reading_page = i.last_reading_page
+            last_reading_page = book.last_reading_page
             
-            if i.is_read:
+            if book.is_read:
                 progress = 100
             elif last_reading_page == 0:
                 last_reading_page = 0
             else:
-                for i2 in i.book.chapters:
-                    all_pages += len(i2.pages)
+                for page in book.book.chapters:
+                    all_pages += len(page.pages)
                 progress = (last_reading_page/all_pages)*100
                 if progress == 100:
-                    i.is_read = True
-                    if i.finish_to_read is None:
-                        i.finish_to_read = datetime.datetime.now().date()
+                    book.is_read = True
+                    if book.finish_to_read is None:
+                        book.finish_to_read = datetime.datetime.now().date()
                     await session.flush()
             
             data = {
-                "id":i.book.id,
-                "title":i.book.title,
-                "author":i.book.author,
-                "writen_date":i.book.writen_date,
+                "id":book.book.id,
+                "title":book.book.title,
+                "author":book.book.author,
+                "writen_date":book.book.writen_date,
                 "progress":progress,
-                "start_to_read":i.start_to_read,
-                "finish_to_read":i.finish_to_read,
-                "is_read":i.is_read,
-                "target_of_date":i.target_of_date
+                "start_to_read":book.start_to_read,
+                "finish_to_read":book.finish_to_read,
+                "is_read":book.is_read,
+                "target_of_date":book.target_of_date
             }
             dataset.append(data)
         await session.commit()
