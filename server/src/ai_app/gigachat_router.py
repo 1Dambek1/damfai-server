@@ -133,11 +133,11 @@ async def sum_text(book_id: int, websocket: WebSocket, session: AsyncSession = D
                     page_record = ReadingPage(reading_book_id=r_book.id_connect, text=result.content, numberOfPage=last_page, chapter_id=page.chapter_id)
                     session.add(page_record)
                 else:
-                    await session.commit()
+                    # await session.commit()
                     await websocket.close()
                     break
         await websocket.close()
 
     except Exception:
-        await session.commit()
+        # await session.commit()
         await websocket.close()

@@ -25,8 +25,10 @@ async def get_themes(session:AsyncSession = Depends(get_session)):
 @app.get('/user/themes', response_model=list[ShowTheme])
 async def get_themes_by_user(user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
 	user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.themes)))
-	return user.themes
-
+	if user:
+		return user.themes
+	
+	raise HTTPException(detail={"message":"Your token is not valid", "status_code":426}, status_code=426)
 # current theme by id
 @app.get('/{theme_id}', response_model=ShowTheme)
 async def get_theme_by_id(theme_id: int, session:AsyncSession = Depends(get_session)): 

@@ -38,7 +38,7 @@ async def valid_access_token(
     
         try:
             payload = jwt.decode(jwt = token, key=public_key, algorithms=[algorithm])
-        except:
+        except Exception as _:
             raise HTTPException(status_code=401, detail={
                 "token":"this token is not valid",
                 "status":401

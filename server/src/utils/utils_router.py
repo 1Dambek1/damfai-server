@@ -52,11 +52,11 @@ async def create_db():
     async with engine.begin() as conn:
         try:
             await conn.run_sync(Base.metadata.drop_all)
-        except:
+        except Exception as _:
             pass
         await  conn.run_sync(Base.metadata.create_all)
 
-    # 
+    
 
 # db
 # @app.get("/create_db", description="debug")

@@ -44,7 +44,7 @@ async def summarize_handler(msg: Message, session: AsyncSession, state: FSMConte
 
 
 @router.callback_query(lambda c: c.data in level_markups)
-async def analytics_graph_handler(callback_query: CallbackQuery, session: AsyncSession, state: FSMContext):
+async def level_handler(callback_query: CallbackQuery, session: AsyncSession, state: FSMContext):
     selected_option = callback_query.data 
 
     # Логика обработки в зависимости от выбранной кнопки
@@ -60,7 +60,7 @@ async def analytics_graph_handler(callback_query: CallbackQuery, session: AsyncS
 
 
 @router.callback_query(lambda c: c.data in lang_markups)
-async def analytics_graph_handler(callback_query: CallbackQuery, _: AsyncSession, state: FSMContext):
+async def lang_handler(callback_query: CallbackQuery, _: AsyncSession, state: FSMContext):
     selected_option = callback_query.data 
 
     # Логика обработки в зависимости от выбранной кнопки

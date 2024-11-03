@@ -18,7 +18,6 @@ from .books_models import Book, Chapter, PageModel, Rating, Ganre
 
 app = APIRouter(prefix="/books", tags=["books"])
 
-
 # get book by id(redact)
 @app.get("/get/book/{id_book}", response_model=ShowBook)
 async def get_book(id_book:int, session:AsyncSession = Depends(get_session)):

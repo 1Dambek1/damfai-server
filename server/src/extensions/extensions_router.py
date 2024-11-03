@@ -24,7 +24,10 @@ async def get_extensions(session:AsyncSession = Depends(get_session)):
 @app.get('/user/extensions', response_model=list[ShowExtension])
 async def get_extensions_by_user(user_id = Depends(get_current_id), session: AsyncSession = Depends(get_session)): 
 	user = await session.scalar(select(User).where(User.id == user_id).options(selectinload(User.extensions)))
-	return user.extensions
+	if user:
+		return user.extensions
+	
+	raise HTTPException(detail={"message":"Your token is not valid", "status_code":426}, status_code=426)
 
 # get ext by slug
 @app.get('/by-slug')
