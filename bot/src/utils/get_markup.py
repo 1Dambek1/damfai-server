@@ -1,7 +1,11 @@
 from sqlalchemy import select
-from markups import auth_user_markup, user_markup
-from server.src.app_auth.auth_models import UserTg
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from markups import auth_user_markup, user_markup
+
+
+from server.src.app_auth.auth_models import UserTg
+
 
 async def get_markup(tg_id: int, session: AsyncSession):
     statement = select(UserTg).where(UserTg.tg_id == tg_id)

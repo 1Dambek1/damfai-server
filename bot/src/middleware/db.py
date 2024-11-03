@@ -4,7 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-
+# Middleware для получения сессии
 class SessionMiddleware(BaseMiddleware):
     def __init__(self, session_pool: async_sessionmaker):
         super().__init__()

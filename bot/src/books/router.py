@@ -1,23 +1,33 @@
 import logging
 import os
 import requests
-from sqlalchemy import select
-from aiogram import Router, F
-from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup, FSInputFile
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.src.utils.get_markup import get_markup
-from utils.extract_book_index import extract_book_index
-from server.src.books.books_models import Book
 from config import config
 from markups import markups
+
+from aiogram import Router, F
+from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup, FSInputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+# Utils functions
+from bot.src.utils.get_markup import get_markup
+from utils.extract_book_index import extract_book_index
+
+from server.src.books.books_models import Book
+
+
 class ChooseBookState(StatesGroup):
     choose = State()
 
 router = Router(name="books")
 
+
+# Озвучка книги (временно отключено)
 @router.message(F.text == markups['speech/book'])
 async def choose_book_handler(msg: Message, session: AsyncSession, state: FSMContext): 
     books = await session.scalars(select(Book))
@@ -34,8 +44,6 @@ async def choose_book_handler(msg: Message, session: AsyncSession, state: FSMCon
 
 @router.message(ChooseBookState.choose)
 async def speech_and_return_to_user(msg: Message, session: AsyncSession, state: FSMContext):
-    # if msg.text not in [button.text for button in keyboard]:
-        # return await msg.answer('Книга не найдена в списке.')
     
     book_id = extract_book_index(msg.text)
     book = await session.scalar(select(Book).where(Book.id == book_id))
@@ -63,8 +71,7 @@ async def speech_and_return_to_user(msg: Message, session: AsyncSession, state: 
                 
             else:
                 logging.error(f"Request from SpeechAPI failed with status code {response.status_code}")
-                return await msg.answer('Что-то пошло не так, попробуйте еще раз.')
-                await state.clear()
+                await msg.answer('Что-то пошло не так, попробуйте еще раз.')
 
         except requests.exceptions.SSLError as ssl_error:
             logging.error(f"SSL Error occurred: {ssl_error}")

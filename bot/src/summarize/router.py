@@ -1,13 +1,16 @@
 
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from bot.src.utils.get_markup import get_markup
-from markups import markups, user_markup, lang_markups, level_markups
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from markups import lang_markup, level_markup
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+from markups import markups, user_markup, lang_markups, level_markups, lang_markup, level_markup
+
+
+from bot.src.utils.get_markup import get_markup
 from server.src.ai_connect import model_sum, tokenizer, device
 
 
@@ -15,8 +18,6 @@ class SummarizeState(StatesGroup):
     level = State()
     lang = State()
     text = State()
-
-
 
 
 router = Router(name="summarize")

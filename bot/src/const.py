@@ -1,3 +1,5 @@
+
+# Маркапы для клавиатуры
 markups = {
 	'profile': '👤 Профиль',
 	'logout': '🚪 Выйти',
@@ -6,7 +8,7 @@ markups = {
 	'statistics': '📊 Статистика',
 	'analytics': '📈 Аналитика',
 	'summarize': "📄 Сократить текст",
-} # markups const
+} 
 
 
 analytics_markups = {
@@ -26,5 +28,5 @@ lang_markups = {
 level_markups = {
     "summary big" : "Слабо",
     "summary" : "Средне",
-    "summary brief" : "Сильно"
+    # "summary brief" : "Сильно"
 }

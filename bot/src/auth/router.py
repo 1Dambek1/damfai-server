@@ -1,16 +1,30 @@
 from uuid import uuid4
+import bcrypt
+
+
 from aiogram import F, Router, types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-import bcrypt
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-from server.src.app_auth.auth_models import User, UserTg
+
 from config import config
 from const import markups
-from sqlalchemy.ext.asyncio import AsyncSession
 from markups import auth_user_markup, user_markup
+
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+from server.src.app_auth.auth_models import User, UserTg
+
+
+
+# Регулярные выражения для проверки email
 import re
+
+
+
+# Стейт для изменения состояния авторизации
 class AuthState(StatesGroup):
     login_password = State()
     login_success = State()
@@ -138,9 +152,11 @@ async def login_email_handler(msg: types.Message, session: AsyncSession,state: F
    if (not (validate_email(msg.text))):
        await msg.answer('Неверный email')
        await state.set_state(AuthState.login_password)
+       return
    if not (await user_is_exists(msg, session)):
        await msg.answer('Пользователь не найден')
-       await state.set_state(AuthState.login_success)
+       await state.set_state(AuthState.login_password)
+       return
        
  
    email = msg.text
@@ -174,7 +190,6 @@ async def login_password_handler(msg: types.Message, session: AsyncSession, stat
 
 
 
-# craete analytics router (graphs) 
 
 
  

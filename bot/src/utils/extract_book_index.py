@@ -1,3 +1,5 @@
+
+
 def extract_book_index(book_string: str) -> int:
     """
     Извлекает индекс книги из строки формата "индекс. название".
