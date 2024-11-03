@@ -19,7 +19,6 @@ RUN pip install -r req.txt
 
 COPY . .
 
-# RUN apt-get update && apt-get install -y supervisor
 # Копируем скрипт-обертку
 COPY reload.sh .
 
@@ -27,6 +26,4 @@ COPY reload.sh .
 # Запускаем скрипт-обертку
 CMD ["./reload.sh"]
 
-
-# CMD ["supervisord", "-c", "/app/supervisord.conf"]
 
