@@ -21,11 +21,11 @@ COPY . .
 
 # RUN apt-get update && apt-get install -y supervisor
 # Копируем скрипт-обертку
-COPY go.sh .
+COPY reload.sh .
 
 
 # Запускаем скрипт-обертку
-CMD ["./go.sh"]
+CMD ["./reload.sh"]
 
 
 # CMD ["supervisord", "-c", "/app/supervisord.conf"]

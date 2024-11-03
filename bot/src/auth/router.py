@@ -140,7 +140,7 @@ async def login_email_handler(msg: types.Message, session: AsyncSession,state: F
        await state.set_state(AuthState.login_password)
    if not (await user_is_exists(msg, session)):
        await msg.answer('Пользователь не найден')
-       await state.set_state(AuthState.login_password)
+       await state.set_state(AuthState.login_success)
        
  
    email = msg.text
